@@ -744,8 +744,7 @@
         return `
       <div class="product-card bg-white rounded-xl sm:rounded-2xl lg:rounded-3xl overflow-hidden border border-gray-100/80">
         <div class="aspect-square overflow-hidden bg-gray-50 relative flex items-center justify-center">
-          <img src="${p.thumb}" alt="${p.name}" loading="lazy" decoding="async"
-               class="product-img w-full h-full object-contain p-2">
+          <img src="${p.thumb}" alt="${p.name}" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='${p.image}';" class="product-img w-full h-full object-cover">
           <div class="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 lg:top-3 lg:right-3">
             <span class="bg-white/90 backdrop-blur-sm text-[10px] sm:text-xs font-semibold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md sm:rounded-lg text-ashpink-dark">${p.priceRub} ₽</span>
           </div>
@@ -831,7 +830,9 @@
 
       itemsEl.innerHTML = cart.map(c => `
     <div class="flex gap-2.5 sm:gap-3 p-2.5 sm:p-3 bg-gray-50 rounded-xl sm:rounded-2xl">
-      <img src="${c.thumb || c.image.replace('il_fullxfull', 'il_570xN')}" class="w-14 h-14 sm:w-16 sm:h-16 rounded-lg sm:rounded-xl object-cover flex-shrink-0" alt="">
+      <img src="${c.thumb || c.image.replace('il_fullxfull', 'il_570xN')}" 
+           onerror="this.onerror=null; this.src='${c.image}';"
+           class="w-14 h-14 sm:w-16 sm:h-16 rounded-lg sm:rounded-xl object-cover flex-shrink-0" alt="">
       <div class="flex-1 min-w-0">
         <p class="text-xs sm:text-sm font-medium text-dark line-clamp-1">${c.name}</p>
         <p class="text-[10px] sm:text-xs text-mid mt-0.5">${c.priceRub} ₽ / $${c.priceUsd}</p>
@@ -939,9 +940,17 @@
       formData.append('utm_campaign', urlParams.get('utm_campaign') || '');
       formData.append('client_time', new Date().toLocaleString('ru-RU'));
 
+      const urlEncodedData = new URLSearchParams();
+      for (const pair of formData.entries()) {
+        urlEncodedData.append(pair[0], pair[1]);
+      }
+
       fetch(form.action, {
         method: 'POST',
-        body: formData
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: urlEncodedData
       })
         .then(response => response.json())
         .then(data => {
