@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>FINA MOLDS</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        ashpink: '#dfc4c3',
+        'ashpink-dark': '#c9a8a6',
+        'ashpink-light': '#f0e4e3',
+        softgray: '#f5f5f5',
+        dark: '#333333',
+        mid: '#888888',
+      }
+    }
+  }
+}
+</script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Inter',sans-serif; background:#f5f5f5; color:#333; overflow-x:hidden; }
+.font-playfair { font-family:'Playfair Display',serif; }
+.line-clamp-1 { overflow:hidden; display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; }
+.line-clamp-2 { overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; line-clamp:2; }
+.cart-panel { transform:translateX(100%); transition:transform .4s cubic-bezier(.4,0,.2,1); }
+.cart-panel.open { transform:translateX(0); }
+.overlay { opacity:0; pointer-events:none; transition:opacity .3s ease; }
+.overlay.active { opacity:1; pointer-events:auto; }
+.toast { transform:translateY(120%); transition:transform .4s cubic-bezier(.4,0,.2,1); }
+.toast.show { transform:translateY(0); }
+.modal-bg { opacity:0; pointer-events:none; transition:opacity .3s ease; }
+.modal-bg.active { opacity:1; pointer-events:auto; }
+.modal-content { transform:scale(.9); transition:transform .3s cubic-bezier(.4,0,.2,1); }
+.modal-bg.active .modal-content { transform:scale(1); }
+.product-img { transition:transform .5s cubic-bezier(.4,0,.2,1); }
+.product-card:hover .product-img { transform:scale(1.05); }
+.product-card { transition:box-shadow .3s ease, transform .3s ease; }
+.product-card:hover { box-shadow:0 20px 60px rgba(0,0,0,.08); transform:translateY(-4px); }
+.btn-cart { transition:all .3s ease; }
+.btn-cart:hover { transform:scale(1.05); }
+.btn-cart:active { transform:scale(.95); }
+@media (hover: none) {
+  .product-card:hover { transform:none; }
+  .btn-cart:hover { transform:none; }
+}
+input:focus, textarea:focus { outline:none; border-color:#dfc4c3; box-shadow:0 0 0 3px rgba(223,196,195,.3); }
+.qty-btn { transition:all .2s ease; }
+.qty-btn:hover { background:#dfc4c3; color:#fff; }
+.qty-btn:active { transform:scale(.9); }
+::-webkit-scrollbar { width:6px; height:6px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:#dfc4c3; border-radius:3px; }
+@media (max-width: 640px) {
+  ::-webkit-scrollbar { width:3px; }
+}
+.hero-pattern {
+  background-image: radial-gradient(circle at 20% 50%, rgba(223,196,195,.15) 0%, transparent 50%),
+                    radial-gradient(circle at 80% 20%, rgba(223,196,195,.1) 0%, transparent 50%),
+                    radial-gradient(circle at 60% 80%, rgba(223,196,195,.12) 0%, transparent 50%);
+}
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+.float-anim { animation:float 4s ease-in-out infinite; }
+@keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
+.shimmer { background:linear-gradient(90deg,#f0e4e3 25%,#faf5f5 50%,#f0e4e3 75%); background-size:200% 100%; animation:shimmer 2s infinite; }
+.scroll-top { position:fixed; bottom:-60px; right:20px; z-index:40; transition:all .3s cubic-bezier(.4,0,.2,1); opacity:0; pointer-events:none; }
+.scroll-top.visible { bottom:24px; opacity:1; pointer-events:auto; }
+.category-btn { transition:all .2s ease; white-space:nowrap; }
+.category-btn.active { background:#c9a8a6; color:#fff; border-color:#c9a8a6; }
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="sticky top-0 z-50 bg-white/90 backdrop-blur-xl border-b border-gray-100 shadow-sm">
+  <div class="max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-20 flex items-center justify-between">
+    <a href="#" class="flex items-center gap-1 select-none group">
+      <span class="text-lg sm:text-2xl font-bold tracking-wider text-dark font-playfair">FINA</span>
+      <span class="text-lg sm:text-2xl font-playfair italic text-ashpink-dark font-light tracking-wide">molds</span>
+    </a>
+    <button onclick="openCart()" class="relative p-2 sm:p-2.5 rounded-xl sm:rounded-2xl hover:bg-ashpink-light/50 transition-colors group active:scale-95">
+      <i data-lucide="shopping-bag" class="w-5 h-5 sm:w-6 sm:h-6 text-dark group-hover:text-ashpink-dark transition-colors"></i>
+      <span id="cart-badge" class="absolute -top-1 -right-1 min-w-[18px] h-[18px] sm:min-w-[20px] sm:h-5 bg-ashpink text-white text-[10px] sm:text-xs font-bold rounded-full flex items-center justify-center px-1 transition-transform scale-0">0</span>
+    </button>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="relative overflow-hidden hero-pattern" style="background:linear-gradient(180deg,#fff 0%,#f7eded 50%,#f5f5f5 100%)">
+  <div class="max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8 py-10 sm:py-16 lg:py-24 text-center relative z-10">
+    <!-- Decorative elements -->
+    <div class="absolute top-10 left-10 w-20 h-20 rounded-full bg-ashpink/10 float-anim hidden lg:block"></div>
+    <div class="absolute bottom-10 right-16 w-14 h-14 rounded-full bg-ashpink/15 float-anim hidden lg:block" style="animation-delay:2s"></div>
+    <div class="absolute top-20 right-32 w-8 h-8 rounded-full bg-ashpink/10 float-anim hidden lg:block" style="animation-delay:1s"></div>
+    
+    <div class="inline-flex items-center gap-2 bg-white/70 backdrop-blur-sm rounded-full px-3 sm:px-4 py-1.5 mb-4 sm:mb-6 border border-ashpink/20">
+      <span class="w-2 h-2 rounded-full bg-ashpink animate-pulse"></span>
+      <span class="text-xs sm:text-sm text-mid font-medium">Ручная работа с любовью</span>
+    </div>
+    
+    <h1 class="text-3xl sm:text-4xl lg:text-6xl font-playfair font-bold text-dark mb-3 sm:mb-4 leading-tight px-2">
+      Силиконовые молды<br>
+      <span class="text-ashpink-dark italic font-normal">для вашего творчества</span>
+    </h1>
+    <p class="text-mid text-sm sm:text-base lg:text-lg max-w-xl mx-auto mb-6 sm:mb-10 leading-relaxed px-4">
+      Выберите молды → добавьте в корзину → оформите заказ.<br class="hidden sm:block">
+      Мы свяжемся с вами для подтверждения!
+    </p>
+    
+    <div class="flex flex-col sm:flex-row gap-2.5 sm:gap-3 justify-center max-w-md mx-auto px-3">
+      <a href="https://t.me/" target="_blank"
+         class="flex items-center justify-center gap-2.5 sm:gap-3 px-5 sm:px-6 py-3 sm:py-3.5 bg-[#2AABEE] hover:bg-[#229ED9] text-white rounded-xl sm:rounded-2xl transition-all shadow-lg shadow-[#2AABEE]/20 hover:shadow-[#2AABEE]/40 hover:-translate-y-0.5 font-medium text-sm sm:text-base active:scale-95">
+        <svg class="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+        Telegram
+      </a>
+      <a href="https://vk.com/" target="_blank"
+         class="flex items-center justify-center gap-2.5 sm:gap-3 px-5 sm:px-6 py-3 sm:py-3.5 bg-[#0077FF] hover:bg-[#0066DD] text-white rounded-xl sm:rounded-2xl transition-all shadow-lg shadow-[#0077FF]/20 hover:shadow-[#0077FF]/40 hover:-translate-y-0.5 font-medium text-sm sm:text-base active:scale-95">
+        <svg class="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M15.684 0H8.316C1.592 0 0 1.592 0 8.316v7.368C0 22.408 1.592 24 8.316 24h7.368C22.408 24 24 22.408 24 15.684V8.316C24 1.592 22.391 0 15.684 0zm3.692 17.123h-1.744c-.66 0-.862-.525-2.049-1.714-1.033-1.01-1.49-1.135-1.744-1.135-.356 0-.458.102-.458.593v1.575c0 .424-.135.678-1.253.678-1.846 0-3.896-1.12-5.339-3.202-2.17-3.042-2.763-5.32-2.763-5.778 0-.254.102-.491.593-.491h1.744c.44 0 .61.203.78.677.863 2.49 2.303 4.675 2.896 4.675.22 0 .322-.102.322-.66V9.721c-.068-1.186-.695-1.287-.695-1.71 0-.203.17-.407.44-.407h2.744c.373 0 .508.203.508.643v3.473c0 .372.17.508.271.508.22 0 .407-.136.813-.542 1.253-1.406 2.15-3.574 2.15-3.574.119-.254.322-.491.762-.491h1.744c.525 0 .644.27.525.643-.22 1.017-2.354 4.031-2.354 4.031-.186.305-.254.44 0 .78.186.254.796.779 1.203 1.253.745.847 1.32 1.558 1.473 2.049.17.49-.085.744-.576.744z"/></svg>
+        ВКонтакте
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- PRODUCTS -->
+<section class="max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
+  <div class="flex items-center justify-between mb-4 sm:mb-6 lg:mb-8">
+    <div>
+      <h2 class="text-xl sm:text-2xl lg:text-3xl font-playfair font-bold text-dark">Каталог</h2>
+      <p class="text-mid mt-0.5 sm:mt-1 text-xs sm:text-sm lg:text-base">Наши силиконовые молды</p>
+    </div>
+    <div class="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-mid bg-white px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl border border-gray-100">
+      <i data-lucide="package" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+      <span id="product-count">0</span> <span class="hidden xs:inline">товаров</span>
+    </div>
+  </div>
+  
+  <!-- CATEGORIES -->
+  <div class="overflow-x-auto pb-4 mb-4 sm:mb-8 hide-scrollbar">
+    <div id="categories-container" class="flex items-center gap-2 sm:gap-3">
+    </div>
+  </div>
+  
+  <div id="products-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-2.5 sm:gap-4 lg:gap-5">
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="bg-white border-t border-gray-100 mt-8 sm:mt-12">
+  <div class="max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8 text-center">
+    <p class="font-playfair text-base sm:text-lg mb-1.5 sm:mb-2"><span class="font-bold">FINA</span> <span class="italic text-ashpink-dark">molds</span></p>
+    <p class="text-mid text-xs sm:text-sm">© 2025 — Все молды изготовлены вручную с любовью</p>
+  </div>
+</footer>
+
+<!-- OVERLAY -->
+<div id="overlay" class="overlay fixed inset-0 bg-black/40 backdrop-blur-sm z-[60]" onclick="closeCart()"></div>
+
+<!-- CART PANEL -->
+<div id="cart-panel" class="cart-panel fixed top-0 right-0 h-full w-full sm:w-[440px] bg-white z-[70] flex flex-col shadow-2xl">
+  <!-- Cart Header -->
+  <div class="flex items-center justify-between p-4 sm:p-5 border-b border-gray-100">
+    <div class="flex items-center gap-2">
+      <i data-lucide="shopping-bag" class="w-5 h-5 text-ashpink-dark"></i>
+      <h2 class="text-base sm:text-lg font-semibold">Корзина</h2>
+    </div>
+    <button onclick="closeCart()" class="p-2 hover:bg-gray-100 rounded-xl transition-colors active:scale-95">
+      <i data-lucide="x" class="w-5 h-5"></i>
+    </button>
+  </div>
+  
+  <!-- Cart Content -->
+  <div id="cart-view" class="flex-1 flex flex-col overflow-hidden">
+    <p id="cart-empty" class="flex-1 flex items-center justify-center text-mid text-sm">Корзина пуста</p>
+    <div id="cart-items" class="flex-1 overflow-y-auto p-3 sm:p-4 space-y-2.5 sm:space-y-3 hidden"></div>
+    
+    <div id="cart-footer" class="p-4 sm:p-5 border-t border-gray-100 hidden">
+      <div class="flex justify-between items-center mb-3 sm:mb-4">
+        <span class="text-mid text-sm">Итого:</span>
+        <div class="text-right">
+          <p class="text-lg sm:text-xl font-bold text-dark" id="cart-total-rub">0 ₽</p>
+          <p class="text-xs sm:text-sm text-mid" id="cart-total-usd">$0</p>
+        </div>
+      </div>
+      <button onclick="showCheckoutForm()" class="btn-cart w-full py-3 sm:py-3.5 bg-ashpink hover:bg-ashpink-dark text-white font-semibold rounded-xl sm:rounded-2xl transition-all shadow-lg shadow-ashpink/30 text-sm sm:text-base active:scale-95">
+        Оформить заказ
+      </button>
+    </div>
+  </div>
+  
+  <!-- Checkout Form -->
+  <div id="checkout-view" class="flex-1 flex flex-col overflow-hidden hidden">
+    <div class="flex-1 overflow-y-auto p-4 sm:p-5">
+      <form id="order-form" onsubmit="submitOrder(event)" class="space-y-3 sm:space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-dark mb-1.5">ФИО</label>
+          <input type="text" name="name" required placeholder="Иванова Анна Сергеевна"
+                 class="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-200 rounded-xl text-sm transition-all bg-gray-50/50">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-dark mb-1.5">Телефон (для СДЭК)</label>
+          <input type="tel" name="phone" required placeholder="+7 999 123-45-67"
+                 class="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-200 rounded-xl text-sm transition-all bg-gray-50/50">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-dark mb-1.5">Контакт (ТГ / ВК / Inst)</label>
+          <input type="text" name="contact" required placeholder="@username"
+                 class="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-200 rounded-xl text-sm transition-all bg-gray-50/50">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-dark mb-1.5">Город доставки</label>
+          <input type="text" name="city" required placeholder="Москва"
+                 class="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-200 rounded-xl text-sm transition-all bg-gray-50/50">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-dark mb-1.5">Адрес ПВЗ СДЭК</label>
+          <textarea name="address" required rows="2" placeholder="ул. Примерная, д. 1"
+                    class="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-200 rounded-xl text-sm transition-all bg-gray-50/50 resize-none"></textarea>
+        </div>
+        
+        <div class="pt-2 space-y-2.5 sm:space-y-3">
+          <button type="submit" id="submit-btn"
+                  class="btn-cart w-full py-3 sm:py-3.5 bg-ashpink hover:bg-ashpink-dark text-white font-semibold rounded-xl sm:rounded-2xl transition-all shadow-lg shadow-ashpink/30 flex items-center justify-center gap-2 text-sm sm:text-base active:scale-95">
+            <span id="submit-text">Подтвердить заказ</span>
+            <svg id="submit-spinner" class="hidden animate-spin w-5 h-5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" fill="none" stroke-dasharray="60 30"/></svg>
+          </button>
+          <button type="button" onclick="showCartView()" class="w-full py-2.5 sm:py-3 text-mid hover:text-dark text-sm font-medium transition-colors">
+            ← Назад к корзине
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast" class="toast fixed bottom-6 left-1/2 -translate-x-1/2 z-[80] bg-dark text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-2 text-sm font-medium">
+  <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
+  <span>Товар добавлен в корзину</span>
+</div>
+
+<!-- SUCCESS MODAL -->
+<div id="success-modal" class="modal-bg fixed inset-0 z-[90] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+  <div class="modal-content bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 max-w-sm w-full text-center shadow-2xl mx-4">
+    <div class="w-14 h-14 sm:w-16 sm:h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+      <i data-lucide="check" class="w-7 h-7 sm:w-8 sm:h-8 text-green-500"></i>
+    </div>
+    <h3 class="text-lg sm:text-xl font-bold font-playfair text-dark mb-2">Заказ оформлен!</h3>
+    <p class="text-mid text-sm mb-5 sm:mb-6 leading-relaxed">Спасибо за заказ! Мы свяжемся с вами в ближайшее время для подтверждения.</p>
+    <button onclick="closeSuccessModal()" class="w-full py-2.5 sm:py-3 bg-ashpink hover:bg-ashpink-dark text-white font-semibold rounded-xl sm:rounded-2xl transition-all active:scale-95">
+      Отлично!
+    </button>
+  </div>
+</div>
+
+<!-- SCROLL TO TOP -->
+<button id="scroll-top" onclick="window.scrollTo({top:0, behavior:'smooth'})" class="scroll-top w-12 h-12 bg-white rounded-full shadow-xl flex items-center justify-center text-ashpink-dark border border-gray-100/80 hover:scale-110 active:scale-95">
+  <i data-lucide="arrow-up" class="w-6 h-6"></i>
+</button>
+
+<script>
+// ============ PRODUCTS DATA ============
+const products = [
+  { name: "Молд №1 — Круглые формы с линзой (10-20 мм)", priceRub: 350, priceUsd: 6, image: "https://i.etsystatic.com/38970874/r/il/14f9d1/6647750922/il_fullxfull.6647750922_s5b5.jpg" },
+  { name: "Молд №2 — Овал и круг (овал 40×28 мм, круг 38 мм)", priceRub: 350, priceUsd: 6, image: "https://i.etsystatic.com/38970874/r/il/4b34d8/6649593288/il_794xN.6649593288_th89.jpg" },
+  { name: "Молд №3 — Овалы и полукруги (полукруг 55×28 мм, овалы 30×20 мм)", priceRub: 350, priceUsd: 6, image: "https://i.etsystatic.com/38970874/r/il/53ec8d/5154884913/il_fullxfull.5154884913_368p.jpg" },
+  { name: "Молд №4 — Круги (35 мм и 45 мм)", priceRub: 350, priceUsd: 6, image: "https://i.etsystatic.com/38970874/r/il/266bca/5106665856/il_fullxfull.5106665856_dy86.jpg" },
+  { name: "Молд №5 — Овалы (30×20 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/e7f625/5110211088/il_fullxfull.5110211088_cpgb.jpg" },
+  { name: "Молд №6 — Овал (35×25 мм)", priceRub: 350, priceUsd: 6, image: "https://i.etsystatic.com/38970874/r/il/10f18d/5205257941/il_794xN.5205257941_8le8.jpg" },
+  { name: "Молд №7 — Овалы (25×18 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/e7f625/5110211088/il_fullxfull.5110211088_cpgb.jpg" },
+  { name: "Молд №8 — Овал для подвески (40×30 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/627dd4/5111528154/il_794xN.5111528154_1ib9.jpg" },
+  { name: "Молд №10 — Прямоугольник и палочки (подвеска 45×20 мм, палочки 40×8 мм)", priceRub: 350, priceUsd: 6, image: "https://i.etsystatic.com/38970874/r/il/44a366/6808201333/il_fullxfull.6808201333_prvm.jpg" },
+  { name: "Молд №12 — Квадраты (20×25 мм и 20×20 мм)", priceRub: 350, priceUsd: 6, image: "https://i.etsystatic.com/38970874/r/il/70dcc0/5111534868/il_fullxfull.5111534868_y2iu.jpg" },
+  { name: "Молд №13 — Квадрат (15×15 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/e4186c/5159760141/il_fullxfull.5159760141_6x5h.jpg" },
+  { name: "Молд №14 — Квадрат (20×20 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/b04aa5/5111539078/il_fullxfull.5111539078_3e27.jpg" },
+  { name: "Молд №15 — 2 капли (30×20 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/8d80dd/6808137385/il_fullxfull.6808137385_8kvk.jpg" },
+  { name: "Молд №16 — Удлинённая капля (40×10 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/2618a2/5111588988/il_fullxfull.5111588988_8sf6.jpg" },
+  { name: "Молд №17 — Капли (20×15 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/da73d6/5159788915/il_fullxfull.5159788915_9c9z.jpg" },
+  { name: "Молд №18 — Круглые капли (подвеска 35×20 мм, серьги 30×20 мм)", priceRub: 350, priceUsd: 6, image: "https://i.etsystatic.com/38970874/r/il/57f418/6812744821/il_fullxfull.6812744821_5t48.jpg" },
+  { name: "Молд №20 — Капли (25×20 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/da73d6/5159788915/il_fullxfull.5159788915_9c9z.jpg" },
+  { name: "Молд №21 — Капли (30×20 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/da73d6/5159788915/il_fullxfull.5159788915_9c9z.jpg" },
+  { name: "Молд №22 — 8 полусфер (22, 20, 15, 12 мм)", priceRub: 400, priceUsd: 7, image: "https://i.etsystatic.com/38970874/r/il/625652/5159840123/il_fullxfull.5159840123_c02u.jpg" },
+  { name: "Молд №23 — Полусфера глянцевая (L 30 мм)", priceRub: 350, priceUsd: 6, image: "https://i.etsystatic.com/38970874/r/il/1a6bd0/5111603596/il_fullxfull.5111603596_7y6j.jpg" },
+  { name: "Молд №24 — Полусфера глянцевая (D25мм×10мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/1a6bd0/5111603596/il_fullxfull.5111603596_7y6j.jpg" },
+  { name: "Молд №25 — Полусфера глянцевая (D25мм×13мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/1a6bd0/5111603596/il_fullxfull.5111603596_7y6j.jpg" },
+  { name: "Молд №26 — Полусфера 6-гнездная (20 мм, 18 мм)", priceRub: 350, priceUsd: 6, image: "https://i.etsystatic.com/38970874/r/il/889371/5111611980/il_fullxfull.5111611980_au49.jpg" },
+  { name: "Молд №28 — Манго (60×28 мм)", priceRub: 250, priceUsd: 4, image: "https://i.etsystatic.com/38970874/r/il/a1d358/6764797626/il_fullxfull.6764797626_bio8.jpg" },
+  { name: "Молд №29 — Манго большое (70×35 мм)", priceRub: 350, priceUsd: 6, image: "https://i.etsystatic.com/38970874/r/il/d2d810/5159842003/il_fullxfull.5159842003_o9s5.jpg" },
+  { name: "Молд №30 — Заостренные овалы с подвеской (серьги 40×15 мм, подвеска 50×15 мм)", priceRub: 350, priceUsd: 6, image: "https://i.etsystatic.com/38970874/r/il/db449e/5159845593/il_fullxfull.5159845593_dvvi.jpg" },
+  { name: "Молд №31 — Заосрённый овал (40×15 мм)", priceRub: 350, priceUsd: 6, image: "https://i.etsystatic.com/38970874/r/il/e33ac4/5111617986/il_fullxfull.5111617986_bwh3.jpg" },
+  { name: "Молд №32 — Заостренные овалы (50×15 мм)", priceRub: 350, priceUsd: 6, image: "https://i.etsystatic.com/38970874/r/il/ac2dae/5205256537/il_fullxfull.5205256537_31jo.jpg" },
+  { name: "Молд №33 — Треугольники (серьги 40×15 мм, подвеска 40×20 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/219dc8/5111622402/il_fullxfull.5111622402_wvrv.jpg" },
+  { name: "Молд №34 — Треугольники (35×20 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/fe0b91/5159854887/il_fullxfull.5159854887_oqds.jpg" },
+  { name: "Молд №35 — Полумесяц (50×35 мм)", priceRub: 250, priceUsd: 4, image: "https://i.etsystatic.com/38970874/r/il/44ae7b/5111626352/il_fullxfull.5111626352_j29s.jpg" },
+  { name: "Молд №36 — Треугольник (40×35×40 мм)", priceRub: 250, priceUsd: 4, image: "https://i.etsystatic.com/38970874/r/il/8b1479/5111628332/il_fullxfull.5111628332_ck96.jpg" },
+  { name: "Молд №37 — Закругленный треугольник (30×28 мм)", priceRub: 350, priceUsd: 6, image: "https://i.etsystatic.com/38970874/r/il/788610/6760168128/il_fullxfull.6760168128_bbgc.jpg" },
+  { name: "Молд №38 — Сердечки (серьги 20×25 мм, подвеска 35×35 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/fd1563/5159860949/il_fullxfull.5159860949_fncx.jpg" },
+  { name: "Молд №39 — Волк (55×50 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/17e0f2/5178034515/il_fullxfull.5178034515_rcse.jpg" },
+  { name: "Молд №40 — Кенгуру (65×38 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/e19361/5131710380/il_fullxfull.5131710380_pgk6.jpg" },
+  { name: "Молд №41 — Слон (60×55 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/44c951/5179932959/il_fullxfull.5179932959_iwga.jpg" },
+  { name: "Молд №42 — Медведь (60×31 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/a9117e/5179932249/il_fullxfull.5179932249_lsrc.jpg" },
+  { name: "Молд №43 — Собака (50×50 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/443d73/5129727452/il_fullxfull.5129727452_r3bz.jpg" },
+  { name: "Молд №44 — Зайчик (50×40 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/cefa96/5159880877/il_794xN.5159880877_jngz.jpg" },
+  { name: "Молд №45 — Белка (50×40 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/d209b6/5129738156/il_fullxfull.5129738156_od11.jpg" },
+  { name: "Молд №46 — Кошка (63×42 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/746a70/5177974101/il_fullxfull.5177974101_9lu2.jpg" },
+  { name: "Молд №47 — Кошка (60×45 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/f1a58a/5179929287/il_fullxfull.5179929287_i79v.jpg" },
+  { name: "Молд №48 — Пантера (72×33 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/537d02/5129759110/il_fullxfull.5129759110_7ca1.jpg" },
+  { name: "Молд №49 — Жираф (60×30 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/985adb/5131701058/il_fullxfull.5131701058_j0md.jpg" },
+  { name: "Молд №50 — Жираф (50×50 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/6cea54/5129769772/il_fullxfull.5129769772_o6qt.jpg" },
+  { name: "Молд №51 — Черепашка (50×57 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/be5ffa/5179923165/il_fullxfull.5179923165_lzna.jpg" },
+  { name: "Молд №52 — Черепашка (60×33 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/02f2dd/5179922119/il_fullxfull.5179922119_ln7z.jpg" },
+  { name: "Молд №53 — Пингвин (40×55 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/fc08f1/5178009051/il_fullxfull.5178009051_q5k9.jpg" },
+  { name: "Молд №54 — Лебедь (54×55 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/5dab13/5178038901/il_fullxfull.5178038901_d5l2.jpg" },
+  { name: "Молд №55 — Попугай (50×33 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/475b98/5178043071/il_fullxfull.5178043071_ibbj.jpg" },
+  { name: "Молд №56 — Попугай (50×33 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/afdf4e/5179920451/il_fullxfull.5179920451_nvh1.jpg" },
+  { name: "Молд №57 — Орел (75×36 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/50d029/5131696436/il_fullxfull.5131696436_4wnh.jpg" },
+  { name: "Молд №58 — Орел (50×33 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/5dc77d/5179919261/il_fullxfull.5179919261_ptzc.jpg" },
+  { name: "Молд №59 — Сова (60×43 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/13fc13/5178057325/il_fullxfull.5178057325_6usv.jpg" },
+  { name: "Молд №60 — Сова (60×39 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/2b59d7/5131694912/il_fullxfull.5131694912_jhj4.jpg" },
+  { name: "Молд №61 — Акула (70×38 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/272d96/5129839556/il_fullxfull.5129839556_gyv9.jpg" },
+  { name: "Молд №62 — Осьминог (60×58 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/c3e2f8/5131680408/il_fullxfull.5131680408_3c6j.jpg" },
+  { name: "Молд №63 — Кит (70×41 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/e9d9a7/5131681742/il_fullxfull.5131681742_tlxr.jpg" },
+  { name: "Молд №64 — Кит (70×30 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/dd6993/5178074691/il_fullxfull.5178074691_6d2l.jpg" },
+  { name: "Молд №65 — Кашалот (60×48 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/a21a23/5129850878/il_fullxfull.5129850878_bqo0.jpg" },
+  { name: "Молд №66 — Дельфин (70×41 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/193aec/5179902513/il_fullxfull.5179902513_jy7l.jpg" },
+  { name: "Молд №67 — Лиса (56×37 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/1255a1/5179901151/il_fullxfull.5179901151_h239.jpg" },
+  { name: "Молд №68 — Лиса (50×50 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/bf9875/5131676162/il_fullxfull.5131676162_7bab.jpg" },
+  { name: "Молд №69 — Лось (60×55 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/041d76/5179898079/il_fullxfull.5179898079_1r2g.jpg" },
+  { name: "Молд №70 — Лось (60×55 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/6b470f/5179897525/il_fullxfull.5179897525_ck5s.jpg" },
+  { name: "Молд №71 — Лошадь (60×67 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/1d3fc0/5179897099/il_fullxfull.5179897099_5x4a.jpg" },
+  { name: "Молд №72 — Гранат (53×55 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/608a70/5179896621/il_fullxfull.5179896621_7jqj.jpg" },
+  { name: "Молд №73 — Кленовый лист (50×55 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/ca6c5f/5179894891/il_fullxfull.5179894891_2m0p.jpg" },
+  { name: "Молд №74 — Дубовый лист (35×58 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/31654c/5179895491/il_fullxfull.5179895491_7r13.jpg" },
+  { name: "Молд №75 — Квадрат 35 мм (35×35 мм)", priceRub: 250, priceUsd: 4, image: "https://i.etsystatic.com/38970874/r/il/d5192b/5111643080/il_fullxfull.5111643080_nzlc.jpg" },
+  { name: "Молд №76 — Квадраты (25 и 35 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/8bfc48/5111657094/il_fullxfull.5111657094_edsk.jpg" },
+  { name: "Молд №77 — Квадраты (15 и 25 мм)", priceRub: 350, priceUsd: 6, image: "https://i.etsystatic.com/38970874/r/il/8bfc48/5111657094/il_fullxfull.5111657094_edsk.jpg" },
+  { name: "Молд №78 — Квадраты (20 и 30 мм)", priceRub: 400, priceUsd: 7, image: "https://i.etsystatic.com/38970874/r/il/8bfc48/5111657094/il_fullxfull.5111657094_edsk.jpg" },
+  { name: "Молд №79 — Квадрат 45 мм (45×45 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/eea1d8/5159965353/il_fullxfull.5159965353_jspv.jpg" },
+  { name: "Молд №80 — 4 квадрата (10×10 мм)", priceRub: 250, priceUsd: 4, image: "https://i.etsystatic.com/38970874/r/il/212f8e/5111673804/il_fullxfull.5111673804_nene.jpg" },
+  { name: "Молд №81 — Квадраты с закругленными углами (15 и 25 мм)", priceRub: 350, priceUsd: 6, image: "https://i.etsystatic.com/38970874/r/il/f7a869/5205254415/il_fullxfull.5205254415_n0i7.jpg" },
+  { name: "Молд №82 — Квадраты с закругленными углами (25 и 35 мм)", priceRub: 350, priceUsd: 6, image: "https://i.etsystatic.com/38970874/r/il/f7a869/5205254415/il_fullxfull.5205254415_n0i7.jpg" },
+  { name: "Молд №83 — Квадраты с закругленными углами (20 и 30 мм)", priceRub: 400, priceUsd: 7, image: "https://i.etsystatic.com/38970874/r/il/f7a869/5205254415/il_fullxfull.5205254415_n0i7.jpg" },
+  { name: "Молд №85 — Закруглённый квадрат 45 мм (45×45 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/bbfdd0/5159976821/il_fullxfull.5159976821_5egi.jpg" },
+  { name: "Молд №86 — 4 квадрата (10×10 мм)", priceRub: 250, priceUsd: 4, image: "https://i.etsystatic.com/38970874/r/il/212f8e/5111673804/il_fullxfull.5111673804_nene.jpg" },
+  { name: "Молд №87 — Закруглённый квадрат 55 мм (55×55 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/98e68a/5205216337/il_fullxfull.5205216337_i66q.jpg" },
+  { name: "Молд №88 — Круг 55 мм (55 мм)", priceRub: 350, priceUsd: 6, image: "https://i.etsystatic.com/38970874/r/il/871a09/5157017548/il_fullxfull.5157017548_m987.jpg" },
+  { name: "Молд №89 — Овал 55 мм (55×40 мм)", priceRub: 350, priceUsd: 6, image: "https://i.etsystatic.com/38970874/r/il/6fa6a1/5205222229/il_fullxfull.5205222229_oeqp.jpg" },
+  { name: "Молд №90 — Квадрат 55 мм (55×55 мм)", priceRub: 400, priceUsd: 7, image: "https://i.etsystatic.com/38970874/r/il/64bcf6/5205225315/il_fullxfull.5205225315_3r2p.jpg" },
+  { name: "Молд №91 — Круглые палочки и скруглённый прямоугольник (палочки 10×27 мм, прямоугольник 19×35 мм)", priceRub: 350, priceUsd: 6, image: "https://i.etsystatic.com/38970874/r/il/08a0cd/5159981569/il_fullxfull.5159981569_luuj.jpg" },
+  { name: "Молд №92 — Круглые палочки (10×40 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/fcca90/6760234740/il_fullxfull.6760234740_d4r3.jpg" },
+  { name: "Молд №93 — Полутреугольники (палочки 12×45 мм, треугольник 20×45 мм)", priceRub: 350, priceUsd: 6, image: "https://i.etsystatic.com/38970874/r/il/859a86/5159969681/il_fullxfull.5159969681_2qvo.jpg" },
+  { name: "Молд №94 — Треугольники для сережек и подвесок (серьги 14×32 мм, подвеска 20×45 мм)", priceRub: 350, priceUsd: 6, image: "https://i.etsystatic.com/38970874/r/il/859a86/5159969681/il_fullxfull.5159969681_2qvo.jpg" },
+  { name: "Молд №95 — Круглые формы (20-35 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/edf312/5159974197/il_fullxfull.5159974197_5dlh.jpg" },
+  { name: "Молд №96 — Круглые формы (25-40 мм)", priceRub: 350, priceUsd: 6, image: "https://i.etsystatic.com/38970874/r/il/edf312/5159974197/il_fullxfull.5159974197_5dlh.jpg" },
+  { name: "Молд №97 — Круглые формы (15-25 мм)", priceRub: 350, priceUsd: 6, image: "https://i.etsystatic.com/38970874/r/il/edf312/5159974197/il_fullxfull.5159974197_5dlh.jpg" },
+  { name: "Молд №98 — Круглые формы с линзой (10-20 мм)", priceRub: 350, priceUsd: 6, image: "https://i.etsystatic.com/38970874/r/il/14f9d1/6647750922/il_fullxfull.6647750922_s5b5.jpg" },
+  { name: "Молд №99 — Шестигранник (серьги 17×19 мм, подвеска 26×29 мм)", priceRub: 350, priceUsd: 6, image: "https://i.etsystatic.com/38970874/r/il/28e5dd/5111748620/il_fullxfull.5111748620_r6bn.jpg" },
+  { name: "Молд №100 — Шестигранник (серьги 26×29 мм, подвеска 35×38 мм)", priceRub: 350, priceUsd: 6, image: "https://i.etsystatic.com/38970874/r/il/28e5dd/5111748620/il_fullxfull.5111748620_r6bn.jpg" },
+  { name: "Молд №101 — Восьмиугольники (серьги 18 мм, подвеска 28 мм)", priceRub: 350, priceUsd: 6, image: "https://i.etsystatic.com/38970874/r/il/e8e10d/6697739211/il_fullxfull.6697739211_4v79.jpg" },
+  { name: "Молд №102 — Восьмиугольники (серьги 28 мм, подвеска 37 мм)", priceRub: 350, priceUsd: 6, image: "https://i.etsystatic.com/38970874/r/il/e8e10d/6697739211/il_fullxfull.6697739211_4v79.jpg" },
+  { name: "Молд №103 — Шестиугольник (43×48 мм)", priceRub: 250, priceUsd: 4, image: "https://i.etsystatic.com/38970874/r/il/7fb8e2/5116922462/il_fullxfull.5116922462_fc40.jpg" },
+  { name: "Молд №104 — Треугольники (20 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/16e8d3/5116929066/il_fullxfull.5116929066_c2gw.jpg" },
+  { name: "Молд №105 — Треугольники (30 мм)", priceRub: 350, priceUsd: 6, image: "https://i.etsystatic.com/38970874/r/il/16e8d3/5116929066/il_fullxfull.5116929066_c2gw.jpg" },
+  { name: "Молд №106 — Треугольники (14 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/09975c/5165161917/il_fullxfull.5165161917_ebdx.jpg" },
+  { name: "Молд №107 — Треугольник (40 мм)", priceRub: 250, priceUsd: 4, image: "https://i.etsystatic.com/38970874/r/il/cff526/5116934374/il_fullxfull.5116934374_c4ym.jpg" },
+  { name: "Молд №108 — Закруглённые треугольники (20 мм)", priceRub: 350, priceUsd: 6, image: "https://i.etsystatic.com/38970874/r/il/5a4da5/5165166457/il_fullxfull.5165166457_l5xc.jpg" },
+  { name: "Молд №109 — Закруглённые треугольники (30 мм)", priceRub: 350, priceUsd: 6, image: "https://i.etsystatic.com/38970874/r/il/5a4da5/5165166457/il_fullxfull.5165166457_l5xc.jpg" },
+  { name: "Молд №110 — Треугольники (15 мм)", priceRub: 350, priceUsd: 6, image: "https://i.etsystatic.com/38970874/r/il/d0cfe0/5116943988/il_fullxfull.5116943988_g91s.jpg" },
+  { name: "Молд №111 — Треугольники (25 мм)", priceRub: 400, priceUsd: 7, image: "https://i.etsystatic.com/38970874/r/il/d0cfe0/5116943988/il_fullxfull.5116943988_g91s.jpg" },
+  { name: "Молд №112 — Закругленные треугольники (11 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/4173cd/5203651709/il_fullxfull.5203651709_k32i.jpg" },
+  { name: "Молд №113 — Закругленные треугольники (15 мм)", priceRub: 250, priceUsd: 4, image: "https://i.etsystatic.com/38970874/r/il/4173cd/5203651709/il_fullxfull.5203651709_k32i.jpg" },
+  { name: "Молд №114 — Алмазные формы (серьги 11×40 мм, подвеска 24×40 мм)", priceRub: 350, priceUsd: 6, image: "https://i.etsystatic.com/38970874/r/il/947970/5165188413/il_fullxfull.5165188413_ldea.jpg" },
+  { name: "Молд №115 — Ромбы (серьги 13×45 мм, подвеска 20×50 мм)", priceRub: 350, priceUsd: 6, image: "https://i.etsystatic.com/38970874/r/il/ea99e0/5165191865/il_fullxfull.5165191865_khvm.jpg" },
+  { name: "Молд №116 — Удлиненные бриллианты (серьги 15×40 мм, подвеска 30×52 мм)", priceRub: 350, priceUsd: 6, image: "https://i.etsystatic.com/38970874/r/il/51b168/5165197401/il_fullxfull.5165197401_mtcu.jpg" },
+  { name: "Молд №117 — Удлинённые алмазы (серьги 10×40 мм, подвеска 20×55 мм)", priceRub: 350, priceUsd: 6, image: "https://i.etsystatic.com/38970874/r/il/55c3e4/5165196041/il_fullxfull.5165196041_gfmn.jpg" },
+  { name: "Молд №118 — Удлинённые полуалмазы (серьги 13×40 мм, подвеска 28×47 мм)", priceRub: 350, priceUsd: 6, image: "https://i.etsystatic.com/38970874/r/il/38325c/5116977562/il_fullxfull.5116977562_fcz3.jpg" },
+  { name: "Молд №119 — Длинные овалы (серьги 13×35 мм, подвеска 20×50 мм)", priceRub: 350, priceUsd: 6, image: "https://i.etsystatic.com/38970874/r/il/7e2c2f/5179957633/il_fullxfull.5179957633_m3a0.jpg" },
+  { name: "Молд №120 — Длинные овалы (серьги 10×40 мм, подвеска 15×60 мм)", priceRub: 350, priceUsd: 6, image: "https://i.etsystatic.com/38970874/r/il/8593f5/5179960215/il_fullxfull.5179960215_7twl.jpg" },
+  { name: "Молд №121 — Остроконечные овалы (серьги 24×35 мм, подвеска 31×44 мм)", priceRub: 350, priceUsd: 6, image: "https://i.etsystatic.com/38970874/r/il/27d2ec/5116992274/il_fullxfull.5116992274_j0oi.jpg" },
+  { name: "Молд №122 — Удлинённые овалы (11×23 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/fad6ed/5165231061/il_fullxfull.5165231061_fujx.jpg" },
+  { name: "Молд №123 — Вытянутая капля (серьги 10×24 мм, подвеска 15×40 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/f247d8/6812728577/il_fullxfull.6812728577_gsid.jpg" },
+  { name: "Молд №124 — Вытянутая капля (серьги 15×40 мм, подвеска 20×48 мм)", priceRub: 350, priceUsd: 6, image: "https://i.etsystatic.com/38970874/r/il/f247d8/6812728577/il_fullxfull.6812728577_gsid.jpg" },
+  { name: "Молд №125 — Капля (35×50 мм)", priceRub: 250, priceUsd: 4, image: "https://i.etsystatic.com/38970874/r/il/e486b7/5165241321/il_fullxfull.5165241321_mc1q.jpg" },
+  { name: "Молд №126 — 2 части сердца (20×40 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/5c32cf/5117014462/il_fullxfull.5117014462_87dd.jpg" },
+  { name: "Молд №127 — Округлые овалы (серьги 17×30 мм, подвеска 23×40 мм)", priceRub: 350, priceUsd: 6, image: "https://i.etsystatic.com/38970874/r/il/0e6eab/6695746683/il_fullxfull.6695746683_l75y.jpg" },
+  { name: "Молд №128 — Закругленные полукруги (серьги 15×35 мм, подвеска 33×40 мм)", priceRub: 350, priceUsd: 6, image: "https://i.etsystatic.com/38970874/r/il/ce45c9/5157018612/il_fullxfull.5157018612_phv3.jpg" },
+  { name: "Молд №129 — Полукруглые формы (серьги 17×40 мм, подвеска 33×40 мм)", priceRub: 350, priceUsd: 6, image: "https://i.etsystatic.com/38970874/r/il/7a01b1/5157019506/il_fullxfull.5157019506_4a8o.jpg" },
+  { name: "Молд №130 — Полукруги (13×30 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/240de6/5117023588/il_fullxfull.5117023588_3cit.jpg" },
+  { name: "Молд №131 — Округлые капли (серьги 15×30 мм, подвеска 21×40 мм)", priceRub: 400, priceUsd: 7, image: "https://i.etsystatic.com/38970874/r/il/ae6e61/5165259555/il_fullxfull.5165259555_n0s3.jpg" },
+  { name: "Молд №132 — Лепестки тюльпана (15×39 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/55bd27/6764755208/il_fullxfull.6764755208_g3nc.jpg" },
+  { name: "Молд №133 — Лепестки (серьги 17×30 мм, подвеска 23×40 мм)", priceRub: 450, priceUsd: 8, image: "https://i.etsystatic.com/38970874/r/il/c6d0e5/5179938465/il_fullxfull.5179938465_ddtr.jpg" },
+  { name: "Молд №134 — Треугольные формы (серьги 20×20 мм, подвеска 30×30 мм)", priceRub: 350, priceUsd: 6, image: "https://i.etsystatic.com/38970874/r/il/2175b8/6715780867/il_fullxfull.6715780867_eswv.jpg" },
+  { name: "Молд №136 — Остроконечные овалы (серьги 13×20 мм, подвеска 17×30 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/27d2ec/5116992274/il_fullxfull.5116992274_j0oi.jpg" },
+  { name: "Молд №137 — Удлиненные капли (10×30 мм)", priceRub: 250, priceUsd: 4, image: "https://i.etsystatic.com/38970874/r/il/2cc721/5131732434/il_fullxfull.5131732434_psim.jpg" },
+  { name: "Молд №138 — Удлиненные капли (17×43 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/2cc721/5131732434/il_fullxfull.5131732434_psim.jpg" },
+  { name: "Молд №139 — Свободные капли (10×20 мм)", priceRub: 250, priceUsd: 4, image: "https://i.etsystatic.com/38970874/r/il/e57346/6649827680/il_fullxfull.6649827680_pcwb.jpg" },
+  { name: "Молд №140 — Свободные капли (15×30 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/e57346/6649827680/il_fullxfull.6649827680_pcwb.jpg" },
+  { name: "Молд №141 — Широкие капли свободной формы (13×18 мм)", priceRub: 250, priceUsd: 4, image: "https://i.etsystatic.com/38970874/r/il/69b038/6667801390/il_fullxfull.6667801390_6en0.jpg" },
+  { name: "Молд №142 — Широкие капли свободной формы (20×25 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/69b038/6667801390/il_fullxfull.6667801390_6en0.jpg" },
+  { name: "Молд №143 — Тонкие формы (8×25 мм)", priceRub: 200, priceUsd: 4, image: "https://i.etsystatic.com/38970874/r/il/df0f6e/6715730393/il_fullxfull.6715730393_kzut.jpg" },
+  { name: "Молд №144 — Тонкие формы (10×40 мм)", priceRub: 250, priceUsd: 4, image: "https://i.etsystatic.com/38970874/r/il/df0f6e/6715730393/il_fullxfull.6715730393_kzut.jpg" },
+  { name: "Молд №145 — Бочки (10×15 мм)", priceRub: 250, priceUsd: 4, image: "https://i.etsystatic.com/38970874/r/il/68bdbd/5157032532/il_fullxfull.5157032532_i7fy.jpg" },
+  { name: "Молд №146 — Бочки (15×25 мм)", priceRub: 250, priceUsd: 4, image: "https://i.etsystatic.com/38970874/r/il/68bdbd/5157032532/il_fullxfull.5157032532_i7fy.jpg" },
+  { name: "Молд №147 — Тонкие длинные капли (10×20 мм)", priceRub: 200, priceUsd: 4, image: "https://i.etsystatic.com/38970874/r/il/56f13a/6715821279/il_fullxfull.6715821279_fmu6.jpg" },
+  { name: "Молд №148 — Тонкие длинные капли (10×30 мм)", priceRub: 250, priceUsd: 4, image: "https://i.etsystatic.com/38970874/r/il/56f13a/6715821279/il_fullxfull.6715821279_fmu6.jpg" },
+  { name: "Молд №149 — Овалы (13×18 мм)", priceRub: 200, priceUsd: 4, image: "https://i.etsystatic.com/38970874/r/il/0d60d2/6715798915/il_fullxfull.6715798915_rbrn.jpg" },
+  { name: "Молд №150 — Овалы (20×25 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/0d60d2/6715798915/il_fullxfull.6715798915_rbrn.jpg" },
+  { name: "Молд №151 — Круги (15 мм)", priceRub: 250, priceUsd: 4, image: "https://i.etsystatic.com/38970874/r/il/c3a6fe/6667753544/il_fullxfull.6667753544_sjdx.jpg" },
+  { name: "Молд №152 — Круги (22 мм)", priceRub: 300, priceUsd: 5, image: "https://i.etsystatic.com/38970874/r/il/c3a6fe/6667753544/il_fullxfull.6667753544_sjdx.jpg" },
+  { name: "Молд №153 — Квадраты с закругленными краями (20×20 мм и 30×30 мм)", priceRub: 350, priceUsd: 6, image: "https://i.etsystatic.com/38970874/r/il/22b28c/5155413608/il_fullxfull.5155413608_3469.jpg" },
+  { name: "Молд №154 — Удлинённые кристаллы (серьги 15×20 мм, подвеска 23×40 мм)", priceRub: 350, priceUsd: 6, image: "https://i.etsystatic.com/38970874/r/il/c0a137/5131719840/il_fullxfull.5131719840_nt9t.jpg" },
+  { name: "Молд №155 — Кристаллы (серьги 20×20 мм, подвеска 30×30 мм)", priceRub: 350, priceUsd: 6, image: "https://i.etsystatic.com/38970874/r/il/cdb46b/6697778037/il_fullxfull.6697778037_dmcx.jpg" },
+  { name: "Молд №156 — Удлинённые кристаллы (серьги 14×20 мм, подвеска 18×35 мм)", priceRub: 350, priceUsd: 6, image: "https://i.etsystatic.com/38970874/r/il/3b72d4/6667721710/il_fullxfull.6667721710_hz3k.jpg" },
+  { name: "Молд №157 — Удлинённые кристаллы (серьги 17×20 мм, подвеска 20×43 мм)", priceRub: 350, priceUsd: 6, image: "https://i.etsystatic.com/38970874/r/il/a0a177/5131716200/il_fullxfull.5131716200_q063.jpg" },
+  { name: "Молд №160 — Кулон-подвеска (55×35 мм)", priceRub: 450, priceUsd: 8, image: "https://i.etsystatic.com/38970874/r/il/fb2b77/5179935855/il_fullxfull.5179935855_5oab.jpg" },
+  { name: "Молд №161 — Элегантный кулон (60×40 мм)", priceRub: 450, priceUsd: 8, image: "https://i.etsystatic.com/38970874/r/il/a85aba/5179934253/il_fullxfull.5179934253_1r22.jpg" },
+  { name: "Шарики 12 мм (4 шт)", priceRub: 550, priceUsd: 10, image: "https://i.etsystatic.com/38970874/r/il/812a6a/5314860557/il_fullxfull.5314860557_35w4.jpg" },
+  { name: "Шарики 14 мм (4 шт)", priceRub: 550, priceUsd: 10, image: "https://i.etsystatic.com/38970874/r/il/812a6a/5314860557/il_fullxfull.5314860557_35w4.jpg" },
+  { name: "Шарики 16 мм (4 шт)", priceRub: 600, priceUsd: 12, image: "https://i.etsystatic.com/38970874/r/il/812a6a/5314860557/il_fullxfull.5314860557_35w4.jpg" },
+  { name: "Шарики 18 мм (4 шт)", priceRub: 650, priceUsd: 13, image: "https://i.etsystatic.com/38970874/r/il/812a6a/5314860557/il_fullxfull.5314860557_35w4.jpg" },
+  { name: "Шарики 20 мм (4 шт)", priceRub: 700, priceUsd: 14, image: "https://i.etsystatic.com/38970874/r/il/812a6a/5314860557/il_fullxfull.5314860557_35w4.jpg" },
+  { name: "Шарики 25 мм (2 шт)", priceRub: 700, priceUsd: 14, image: "https://i.etsystatic.com/38970874/r/il/812a6a/5314860557/il_fullxfull.5314860557_35w4.jpg" },
+  { name: "Шарики 28 мм (2 шт)", priceRub: 750, priceUsd: 15, image: "https://i.etsystatic.com/38970874/r/il/812a6a/5314860557/il_fullxfull.5314860557_35w4.jpg" },
+  { name: "Кубики 15 мм (4 шт)", priceRub: 650, priceUsd: 13, image: "https://i.etsystatic.com/38970874/r/il/84070f/5266733314/il_fullxfull.5266733314_jawe.jpg" },
+  { name: "Кубики 19 мм (2 шт)", priceRub: 600, priceUsd: 12, image: "https://i.etsystatic.com/38970874/r/il/84070f/5266733314/il_fullxfull.5266733314_jawe.jpg" },
+  { name: "Кубики 25 мм (2 шт)", priceRub: 700, priceUsd: 14, image: "https://i.etsystatic.com/38970874/r/il/84070f/5266733314/il_fullxfull.5266733314_jawe.jpg" }
+];
+
+// ============ STATE & CATEGORIES ============
+let cart = JSON.parse(localStorage.getItem('fina_cart')) || [];
+let currentCategory = 'Все';
+const categoriesList = ['Все', 'Круги и Овалы', 'Геометрия', 'Капли', 'Флора и Фауна', 'Кулоны', 'Разное'];
+
+function getCategory(name) {
+  const n = name.toLowerCase();
+  if (/(волк|кенгуру|слон|медведь|собак|зайчик|белк|кошк|пантер|жираф|черепашк|пингвин|лебед|попугай|орел|сов|акул|осьминог|кит|кашалот|дельфин|лис|лос|лошад|гранат|лист|манго)/.test(n)) return "Флора и Фауна";
+  if (/(капл|слез|тюльпан)/.test(n)) return "Капли";
+  if (/(кулон)/.test(n)) return "Кулоны";
+  if (/(круг|сфер|шарик|овал)/.test(n)) return "Круги и Овалы";
+  if (/(квадрат|прямоугольник|треугольник|ромб|алмаз|бриллиант|кристалл|шестигранник|восьмиугольник|шестиугольник|кубик|палочк|бочк|сердц|сердечк|месяц)/.test(n)) return "Геометрия";
+  return "Разное";
+}
+
+// Assign unique IDs, categories and optimize images
+products.forEach((p, i) => { 
+  p.id = 'mold_' + i; 
+  p.category = getCategory(p.name);
+  p.thumb = p.image.replace('il_fullxfull', 'il_570xN');
+});
+
+function saveCart() {
+  localStorage.setItem('fina_cart', JSON.stringify(cart));
+}
+
+function renderCategories() {
+  const container = document.getElementById('categories-container');
+  container.innerHTML = categoriesList.map(cat => `
+    <button onclick="setCategory('${cat}')" 
+            class="category-btn px-4 py-2 rounded-full border text-sm font-medium ${currentCategory === cat ? 'active border-ashpink-dark' : 'border-gray-200 text-mid bg-white hover:border-ashpink-dark/50 hover:text-ashpink-dark'}">
+      ${cat}
+    </button>
+  `).join('');
+}
+
+function setCategory(cat) {
+  currentCategory = cat;
+  renderCategories();
+  renderProducts();
+}
+
+// ============ RENDER PRODUCTS ============
+function renderProducts() {
+  const grid = document.getElementById('products-grid');
+  
+  const filtered = currentCategory === 'Все' 
+    ? products 
+    : products.filter(p => p.category === currentCategory);
+    
+  document.getElementById('product-count').textContent = filtered.length;
+  
+  grid.innerHTML = filtered.map(p => {
+    const cartItem = cart.find(c => c.id === p.id);
+    const inCart = !!cartItem;
+    const qty = cartItem ? cartItem.quantity : 0;
+    
+    return `
+      <div class="product-card bg-white rounded-xl sm:rounded-2xl lg:rounded-3xl overflow-hidden border border-gray-100/80">
+        <div class="aspect-square overflow-hidden bg-gray-50 relative flex items-center justify-center">
+          <img src="${p.thumb}" alt="${p.name}" loading="lazy" decoding="async"
+               class="product-img w-full h-full object-contain p-2">
+          <div class="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 lg:top-3 lg:right-3">
+            <span class="bg-white/90 backdrop-blur-sm text-[10px] sm:text-xs font-semibold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md sm:rounded-lg text-ashpink-dark">${p.priceRub} ₽</span>
+          </div>
+        </div>
+        <div class="p-2 sm:p-3 lg:p-4">
+          <h3 class="font-medium text-dark text-xs sm:text-sm lg:text-base line-clamp-2 mb-1.5 sm:mb-2 min-h-[2.5rem] sm:min-h-[2.8rem]" title="${p.name}">${p.name}</h3>
+          <div class="flex items-baseline gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+            <span class="text-sm sm:text-base lg:text-lg font-bold text-dark">${p.priceRub} ₽</span>
+            <span class="text-[10px] sm:text-xs lg:text-sm text-mid">/ $${p.priceUsd}</span>
+          </div>
+          <button onclick="addToCart('${p.id}')"
+                  class="btn-cart w-full py-2 sm:py-2.5 ${inCart ? 'bg-ashpink text-white' : 'bg-ashpink-light hover:bg-ashpink text-ashpink-dark hover:text-white'} text-xs sm:text-sm font-semibold rounded-lg sm:rounded-xl transition-all flex items-center justify-center gap-1 sm:gap-1.5 active:scale-95">
+            ${inCart 
+              ? `<i data-lucide="check" class="w-3 h-3 sm:w-4 sm:h-4"></i><span class="hidden xs:inline">В корзине (${qty})</span><span class="xs:hidden">(${qty}) шт.</span>` 
+              : `<i data-lucide="plus" class="w-3 h-3 sm:w-4 sm:h-4"></i><span class="hidden xs:inline">В корзину</span><span class="xs:hidden">Купить</span>`}
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
+  
+  lucide.createIcons();
+}
+
+// ============ CART LOGIC ============
+function addToCart(id) {
+  const product = products.find(p => p.id === id);
+  if (!product) return;
+  
+  const existing = cart.find(c => c.id === id);
+  if (existing) {
+    existing.quantity++;
+  } else {
+    cart.push({ ...product, quantity: 1 });
+  }
+  
+  saveCart();
+  updateCartUI();
+  renderProducts(); // Update button state
+  showToast();
+}
+
+function removeFromCart(id) {
+  const item = cart.find(c => c.id === id);
+  if (!item) return;
+  item.quantity--;
+  if (item.quantity <= 0) cart = cart.filter(c => c.id !== id);
+  saveCart();
+  updateCartUI();
+  renderProducts(); // Update button state
+}
+
+function increaseQty(id) {
+  const item = cart.find(c => c.id === id);
+  if (item) { 
+    item.quantity++; 
+    saveCart();
+    updateCartUI(); 
+    renderProducts(); 
+  }
+}
+
+function updateCartUI() {
+  const badge = document.getElementById('cart-badge');
+  const totalItems = cart.reduce((s, c) => s + c.quantity, 0);
+  badge.textContent = totalItems;
+  badge.style.transform = totalItems > 0 ? 'scale(1)' : 'scale(0)';
+  
+  const emptyEl = document.getElementById('cart-empty');
+  const itemsEl = document.getElementById('cart-items');
+  const footerEl = document.getElementById('cart-footer');
+  
+  if (cart.length === 0) {
+    emptyEl.classList.remove('hidden');
+    itemsEl.classList.add('hidden');
+    footerEl.classList.add('hidden');
+    return;
+  }
+  
+  emptyEl.classList.add('hidden');
+  itemsEl.classList.remove('hidden');
+  footerEl.classList.remove('hidden');
+  
+  itemsEl.innerHTML = cart.map(c => `
+    <div class="flex gap-2.5 sm:gap-3 p-2.5 sm:p-3 bg-gray-50 rounded-xl sm:rounded-2xl">
+      <img src="${c.thumb || c.image.replace('il_fullxfull', 'il_570xN')}" class="w-14 h-14 sm:w-16 sm:h-16 rounded-lg sm:rounded-xl object-cover flex-shrink-0" alt="">
+      <div class="flex-1 min-w-0">
+        <p class="text-xs sm:text-sm font-medium text-dark line-clamp-1">${c.name}</p>
+        <p class="text-[10px] sm:text-xs text-mid mt-0.5">${c.priceRub} ₽ / $${c.priceUsd}</p>
+        <div class="flex items-center gap-1.5 sm:gap-2 mt-1.5 sm:mt-2">
+          <button onclick="removeFromCart('${c.id}')" class="qty-btn w-6 h-6 sm:w-7 sm:h-7 rounded-lg border border-gray-200 flex items-center justify-center text-xs sm:text-sm font-bold text-dark hover:border-ashpink active:scale-90">−</button>
+          <span class="text-xs sm:text-sm font-semibold w-4 sm:w-5 text-center">${c.quantity}</span>
+          <button onclick="increaseQty('${c.id}')" class="qty-btn w-6 h-6 sm:w-7 sm:h-7 rounded-lg border border-gray-200 flex items-center justify-center text-xs sm:text-sm font-bold text-dark hover:border-ashpink active:scale-90">+</button>
+        </div>
+      </div>
+      <p class="text-xs sm:text-sm font-bold text-dark whitespace-nowrap">${c.priceRub * c.quantity} ₽</p>
+    </div>
+  `).join('');
+  
+  const totalRub = cart.reduce((s, c) => s + c.priceRub * c.quantity, 0);
+  const totalUsd = cart.reduce((s, c) => s + c.priceUsd * c.quantity, 0);
+  document.getElementById('cart-total-rub').textContent = totalRub + ' ₽';
+  document.getElementById('cart-total-usd').textContent = '$' + totalUsd;
+}
+
+// ============ CART PANEL ============
+function openCart() {
+  document.getElementById('cart-panel').classList.add('open');
+  document.getElementById('overlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
+  showCartView();
+}
+
+function closeCart() {
+  document.getElementById('cart-panel').classList.remove('open');
+  document.getElementById('overlay').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+function showCartView() {
+  document.getElementById('cart-view').classList.remove('hidden');
+  document.getElementById('checkout-view').classList.add('hidden');
+}
+
+function showCheckoutForm() {
+  document.getElementById('cart-view').classList.add('hidden');
+  document.getElementById('checkout-view').classList.remove('hidden');
+}
+
+// ============ TOAST ============
+function showToast() {
+  const toast = document.getElementById('toast');
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2000);
+}
+
+// ============ SUCCESS MODAL ============
+function closeSuccessModal() {
+  document.getElementById('success-modal').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+function showSuccessModal() {
+  document.getElementById('success-modal').classList.add('active');
+}
+
+// ============ SUBMIT ORDER ============
+function submitOrder(e) {
+  e.preventDefault();
+  
+  const form = document.getElementById('order-form');
+  const btn = document.getElementById('submit-btn');
+  const txt = document.getElementById('submit-text');
+  const spin = document.getElementById('submit-spinner');
+  
+  btn.disabled = true;
+  txt.textContent = 'Отправка...';
+  spin.classList.remove('hidden');
+  
+  const totalRub = cart.reduce((s, c) => s + c.priceRub * c.quantity, 0);
+  const totalUsd = cart.reduce((s, c) => s + c.priceUsd * c.quantity, 0);
+  
+  const itemsStr = cart.map(c => c.name + ' × ' + c.quantity + ' = ' + (c.priceRub * c.quantity) + ' ₽').join('\n');
+  
+  const orderData = {
+    name: form.name.value,
+    phone: form.phone.value,
+    contact: form.contact.value,
+    city: form.city.value,
+    address: form.address.value,
+    total: totalRub + ' ₽ / $' + totalUsd,
+    items: itemsStr
+  };
+  
+  function onSuccess() {
+    btn.disabled = false;
+    txt.textContent = 'Подтвердить заказ';
+    spin.classList.add('hidden');
+    cart = [];
+    saveCart();
+    updateCartUI();
+    renderProducts();
+    form.reset();
+    closeCart();
+    showSuccessModal();
+  }
+  
+  function onError(err) {
+    btn.disabled = false;
+    txt.textContent = 'Подтвердить заказ';
+    spin.classList.add('hidden');
+    alert('Ошибка отправки. Попробуйте ещё раз.');
+    console.error(err);
+  }
+  
+  if (typeof google !== 'undefined' && google.script && google.script.run) {
+    google.script.run
+      .withSuccessHandler(onSuccess)
+      .withFailureHandler(onError)
+      .processOrder(orderData);
+  } else {
+    // Local testing fallback
+    console.log('Order data (local test):', orderData);
+    setTimeout(onSuccess, 1500);
+  }
+}
+
+// ============ SCROLL TO TOP ============
+window.addEventListener('scroll', () => {
+  const btn = document.getElementById('scroll-top');
+  if (window.scrollY > 500) {
+    btn.classList.add('visible');
+  } else {
+    btn.classList.remove('visible');
+  }
+});
+
+// ============ INIT ============
+document.addEventListener('DOMContentLoaded', function() {
+  renderCategories();
+  renderProducts();
+  updateCartUI(); // Restore badge from localStorage
+  lucide.createIcons();
+});
+</script>
+</body>
+</html>
