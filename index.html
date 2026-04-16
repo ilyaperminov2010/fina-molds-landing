@@ -930,14 +930,14 @@
       const formData = new FormData(form);
       formData.append('total', totalRub + ' ₽ / $' + totalUsd);
       formData.append('items', itemsStr);
-      formData.append('url', window.location.href);
-      formData.append('userAgent', navigator.userAgent);
+      formData.append('page_url', window.location.href);
+      formData.append('user_agent', navigator.userAgent);
 
       const urlParams = new URLSearchParams(window.location.search);
       formData.append('utm_source', urlParams.get('utm_source') || '');
       formData.append('utm_medium', urlParams.get('utm_medium') || '');
       formData.append('utm_campaign', urlParams.get('utm_campaign') || '');
-      formData.append('clientTime', new Date().toLocaleString('ru-RU'));
+      formData.append('client_time', new Date().toLocaleString('ru-RU'));
 
       fetch(form.action, {
         method: 'POST',
@@ -956,7 +956,7 @@
             renderProducts();
             form.reset();
             closeCart();
-            showSuccessModal(data.orderId || 'FM-00000');
+            showSuccessModal(data.orderNumber || 'FM-XXXXX');
           } else {
             alert('Ошибка отправки. Попробуйте ещё раз.');
           }
