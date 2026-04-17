@@ -385,13 +385,41 @@
       <div id="cart-items" class="flex-1 overflow-y-auto p-3 sm:p-4 space-y-2.5 sm:space-y-3 hidden"></div>
 
       <div id="cart-footer" class="p-4 sm:p-5 border-t border-gray-100 hidden">
-        <div class="flex justify-between items-center mb-3 sm:mb-4">
-          <span class="text-mid text-sm">Итого:</span>
-          <div class="text-right">
-            <p class="text-lg sm:text-xl font-bold text-dark" id="cart-total-rub">0 ₽</p>
-            <p class="text-xs sm:text-sm text-mid" id="cart-total-usd">$0</p>
+        <!-- Промокод -->
+        <div class="mb-3 sm:mb-4">
+          <div class="flex gap-2">
+            <input type="text" id="promo-input" placeholder="Промокод"
+              class="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-ashpink/50 uppercase">
+            <button type="button" onclick="applyPromo()"
+              class="px-4 py-2 bg-ashpink-light hover:bg-ashpink text-dark hover:text-white font-medium rounded-lg transition-all text-sm active:scale-95">
+              Применить
+            </button>
+          </div>
+          <div id="promo-message" class="mt-2 text-xs hidden"></div>
+        </div>
+
+        <!-- Итого -->
+        <div class="space-y-2 mb-3 sm:mb-4">
+          <div class="flex justify-between items-center text-sm">
+            <span class="text-mid">Сумма:</span>
+            <div class="text-right">
+              <span id="cart-subtotal-rub" class="text-dark">0 ₽</span>
+              <span class="text-xs text-mid ml-1" id="cart-subtotal-usd">($0)</span>
+            </div>
+          </div>
+          <div id="promo-discount-row" class="flex justify-between items-center text-sm hidden">
+            <span class="text-green-600">Скидка <span id="promo-name"></span>:</span>
+            <span class="text-green-600 font-medium" id="promo-discount-amount">-0 ₽</span>
+          </div>
+          <div class="flex justify-between items-center pt-2 border-t border-gray-100">
+            <span class="text-mid text-sm font-semibold">Итого:</span>
+            <div class="text-right">
+              <p class="text-lg sm:text-xl font-bold text-dark" id="cart-total-rub">0 ₽</p>
+              <p class="text-xs sm:text-sm text-mid" id="cart-total-usd">$0</p>
+            </div>
           </div>
         </div>
+
         <button onclick="showCheckoutForm()"
           class="btn-cart w-full py-3 sm:py-3.5 bg-ashpink hover:bg-ashpink-dark text-white font-semibold rounded-xl sm:rounded-2xl transition-all shadow-lg shadow-ashpink/30 text-sm sm:text-base active:scale-95">
           Оформить заказ
@@ -419,9 +447,35 @@
               class="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-200 rounded-xl text-sm transition-all bg-gray-50/50">
           </div>
           <div>
-            <label class="block text-sm font-medium text-dark mb-1.5">Контакт (ТГ / ВК / Inst)</label>
-            <input type="text" name="contact" required placeholder="@username"
-              class="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-200 rounded-xl text-sm transition-all bg-gray-50/50">
+            <label class="block text-sm font-medium text-dark mb-1.5">Контакт для связи</label>
+            <input type="text" name="contact" required placeholder="@username или ссылка"
+              class="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-200 rounded-xl text-sm transition-all bg-gray-50/50 mb-2">
+            
+            <div class="space-y-2">
+              <p class="text-xs text-mid mb-2">Где с вами связаться?</p>
+              <div class="flex flex-wrap gap-3">
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" name="contact_method" value="Telegram" 
+                    class="w-4 h-4 rounded border-gray-300 text-ashpink focus:ring-ashpink/50">
+                  <span class="text-sm text-dark">Telegram</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" name="contact_method" value="VK" 
+                    class="w-4 h-4 rounded border-gray-300 text-ashpink focus:ring-ashpink/50">
+                  <span class="text-sm text-dark">ВКонтакте</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" name="contact_method" value="Instagram" 
+                    class="w-4 h-4 rounded border-gray-300 text-ashpink focus:ring-ashpink/50">
+                  <span class="text-sm text-dark">Instagram</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" name="contact_method" value="WhatsApp" 
+                    class="w-4 h-4 rounded border-gray-300 text-ashpink focus:ring-ashpink/50">
+                  <span class="text-sm text-dark">WhatsApp</span>
+                </label>
+              </div>
+            </div>
           </div>
           <div>
             <label class="block text-sm font-medium text-dark mb-1.5">Город доставки</label>
@@ -681,6 +735,13 @@
     ];
     // ============ STATE & CATEGORIES ============
     let cart = JSON.parse(localStorage.getItem('fina_cart')) || [];
+    let appliedPromo = null; // Текущий примененный промокод
+
+    // Промокоды: код -> скидка в процентах
+    const promoCodes = {
+      'НАКУРСЕ': 10
+    };
+
     let currentCategory = 'Все';
     const categoriesList = ['Все', 'Круги и Овалы', 'Геометрия', 'Капли', 'Флора и Фауна', 'Кулоны', 'Разное'];
 
@@ -841,10 +902,65 @@
     </div>
   `).join('');
 
-      const totalRub = cart.reduce((s, c) => s + c.priceRub * c.quantity, 0);
-      const totalUsd = cart.reduce((s, c) => s + c.priceUsd * c.quantity, 0);
+      const subtotalRub = cart.reduce((s, c) => s + c.priceRub * c.quantity, 0);
+      const subtotalUsd = cart.reduce((s, c) => s + c.priceUsd * c.quantity, 0);
+
+      // Применяем скидку если есть промокод
+      let discountRub = 0;
+      let totalRub = subtotalRub;
+      let totalUsd = subtotalUsd;
+
+      if (appliedPromo) {
+        discountRub = Math.round(subtotalRub * appliedPromo.discount / 100);
+        totalRub = subtotalRub - discountRub;
+        totalUsd = Math.round(subtotalUsd * (1 - appliedPromo.discount / 100));
+      }
+
+      // Обновляем отображение
+      document.getElementById('cart-subtotal-rub').textContent = subtotalRub + ' ₽';
+      document.getElementById('cart-subtotal-usd').textContent = '($' + subtotalUsd + ')';
       document.getElementById('cart-total-rub').textContent = totalRub + ' ₽';
       document.getElementById('cart-total-usd').textContent = '$' + totalUsd;
+
+      // Показываем/скрываем строку скидки
+      const discountRow = document.getElementById('promo-discount-row');
+      if (appliedPromo) {
+        discountRow.classList.remove('hidden');
+        document.getElementById('promo-name').textContent = appliedPromo.code;
+        document.getElementById('promo-discount-amount').textContent = '-' + discountRub + ' ₽';
+      } else {
+        discountRow.classList.add('hidden');
+      }
+    }
+
+    // ============ PROMO CODE ============
+    function applyPromo() {
+      const input = document.getElementById('promo-input');
+      const message = document.getElementById('promo-message');
+      const code = input.value.trim().toUpperCase();
+
+      if (!code) {
+        message.textContent = 'Введите промокод';
+        message.className = 'mt-2 text-xs text-red-500';
+        message.classList.remove('hidden');
+        return;
+      }
+
+      if (promoCodes[code]) {
+        appliedPromo = {
+          code: code,
+          discount: promoCodes[code]
+        };
+        message.textContent = `✓ Промокод применен! Скидка ${promoCodes[code]}%`;
+        message.className = 'mt-2 text-xs text-green-600';
+        message.classList.remove('hidden');
+        input.disabled = true;
+        updateCartUI();
+      } else {
+        message.textContent = '✗ Неверный промокод';
+        message.className = 'mt-2 text-xs text-red-500';
+        message.classList.remove('hidden');
+      }
     }
 
     // ============ CART PANEL ============
@@ -918,14 +1034,32 @@
       txt.textContent = 'Отправка...';
       spin.classList.remove('hidden');
 
-      const totalRub = cart.reduce((s, c) => s + c.priceRub * c.quantity, 0);
-      const totalUsd = cart.reduce((s, c) => s + c.priceUsd * c.quantity, 0);
+      const subtotalRub = cart.reduce((s, c) => s + c.priceRub * c.quantity, 0);
+      const subtotalUsd = cart.reduce((s, c) => s + c.priceUsd * c.quantity, 0);
 
-      const itemsStr = cart.map(c => c.name + ' × ' + c.quantity + ' = ' + (c.priceRub * c.quantity) + ' ₽').join('\n');
+      // Применяем скидку если есть промокод
+      let totalRub = subtotalRub;
+      let totalUsd = subtotalUsd;
+      let promoInfo = '';
+
+      if (appliedPromo) {
+        const discountRub = Math.round(subtotalRub * appliedPromo.discount / 100);
+        totalRub = subtotalRub - discountRub;
+        totalUsd = Math.round(subtotalUsd * (1 - appliedPromo.discount / 100));
+        promoInfo = `\nПромокод: ${appliedPromo.code} (-${appliedPromo.discount}%, -${discountRub} ₽)`;
+      }
+
+      const itemsStr = cart.map(c => c.name + ' × ' + c.quantity + ' = ' + (c.priceRub * c.quantity) + ' ₽').join('\n') + promoInfo;
+
+      // Собираем выбранные методы связи
+      const contactMethods = Array.from(form.querySelectorAll('input[name="contact_method"]:checked'))
+        .map(cb => cb.value)
+        .join(', ');
 
       const formData = new FormData(form);
       formData.append('total', totalRub + ' ₽ / $' + totalUsd);
       formData.append('items', itemsStr);
+      formData.append('contact_methods', contactMethods || 'Не указано');
       formData.append('page_url', window.location.href);
       formData.append('user_agent', navigator.userAgent);
 
@@ -955,10 +1089,19 @@
 
           if (data.result === 'success' || data.ok) {
             cart = [];
+            appliedPromo = null; // Сбрасываем промокод
             saveCart();
             updateCartUI();
             renderProducts();
             form.reset();
+            
+            // Сбрасываем поле промокода
+            const promoInput = document.getElementById('promo-input');
+            const promoMessage = document.getElementById('promo-message');
+            promoInput.value = '';
+            promoInput.disabled = false;
+            promoMessage.classList.add('hidden');
+            
             closeCart();
             showSuccessModal(data.orderNumber || 'FM-XXXXX');
           } else {
