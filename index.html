@@ -79,12 +79,12 @@
     }
 
     .toast {
-      transform: translateY(120%);
+      transform: translate(-50%, 200%) !important;
       transition: transform .4s cubic-bezier(.4, 0, .2, 1);
     }
 
     .toast.show {
-      transform: translateY(0);
+      transform: translate(-50%, 0) !important;
     }
 
     .modal-bg {
@@ -355,10 +355,40 @@
 
   <!-- FOOTER -->
   <footer class="bg-white border-t border-gray-100 mt-8 sm:mt-12">
-    <div class="max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8 text-center">
-      <p class="font-playfair text-base sm:text-lg mb-1.5 sm:mb-2"><span class="font-bold">FINA</span> <span
-          class="italic text-ashpink-dark">molds</span></p>
-      <p class="text-mid text-xs sm:text-sm">© 2025 — Все молды изготовлены вручную с любовью</p>
+    <div class="max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <!-- Логотип -->
+      <div class="text-center mb-4">
+        <p class="font-playfair text-base sm:text-lg mb-1.5 sm:mb-2">
+          <span class="font-bold">FINA</span> 
+          <span class="italic text-ashpink-dark">molds</span>
+        </p>
+      </div>
+      
+      <!-- Реквизиты компании -->
+      <div class="text-center text-xs sm:text-sm text-mid space-y-1 mb-4">
+        <p>ИП Перминов Илья Александрович</p>
+        <p>ИНН: 545213045290 | ОГРНИП: 320547600063741</p>
+        <p>Адрес: Россия, Новосибирская область, г. Куйбышев, ул. Советская, д. 20, кв. 1</p>
+        <p>Телефон: +7 983 317-72-63 | Email: fina.etsy@gmail.com</p>
+      </div>
+      
+      <!-- Ссылки на документы -->
+      <div class="text-center text-xs sm:text-sm space-x-3 sm:space-x-4 mb-3">
+        <a href="#" onclick="event.preventDefault(); openPrivacyModal();" 
+           class="text-ashpink-dark hover:text-ashpink underline">
+          Политика конфиденциальности
+        </a>
+        <span class="text-gray-300">|</span>
+        <a href="#" onclick="event.preventDefault(); openOfferModal();" 
+           class="text-ashpink-dark hover:text-ashpink underline">
+          Публичная оферта
+        </a>
+      </div>
+      
+      <!-- Copyright -->
+      <p class="text-center text-mid text-xs sm:text-sm">
+        © 2025 — Все молды изготовлены вручную с любовью
+      </p>
     </div>
   </footer>
 
@@ -488,6 +518,26 @@
               class="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-200 rounded-xl text-sm transition-all bg-gray-50/50 resize-none"></textarea>
           </div>
 
+          <!-- Consent Checkbox -->
+          <div class="pt-3 border-t border-gray-100">
+            <label class="flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" name="consent" required 
+                     class="mt-0.5 w-4 h-4 rounded border-gray-300 text-ashpink focus:ring-ashpink/50">
+              <span class="text-xs sm:text-sm text-dark">
+                Я согласен с 
+                <a href="#" onclick="event.preventDefault(); openPrivacyModal();" 
+                   class="text-ashpink-dark hover:text-ashpink underline">
+                  Политикой конфиденциальности
+                </a> 
+                и 
+                <a href="#" onclick="event.preventDefault(); openOfferModal();" 
+                   class="text-ashpink-dark hover:text-ashpink underline">
+                  Публичной офертой
+                </a>
+              </span>
+            </label>
+          </div>
+
           <div class="pt-2 space-y-2.5 sm:space-y-3">
             <button type="submit" id="submit-btn"
               class="btn-cart w-full py-3 sm:py-3.5 bg-ashpink hover:bg-ashpink-dark text-white font-semibold rounded-xl sm:rounded-2xl transition-all shadow-lg shadow-ashpink/30 flex items-center justify-center gap-2 text-sm sm:text-base active:scale-95">
@@ -509,7 +559,7 @@
 
   <!-- TOAST -->
   <div id="toast"
-    class="toast fixed bottom-6 left-1/2 -translate-x-1/2 z-[80] bg-dark text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-2 text-sm font-medium">
+    class="toast fixed bottom-6 left-1/2 z-[80] bg-dark text-white px-4 py-2 rounded-xl shadow-2xl flex items-center gap-2 text-xs font-medium opacity-80">
     <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
     <span>Товар добавлен в корзину</span>
   </div>
@@ -561,6 +611,247 @@
         class="w-full py-2.5 sm:py-3 border border-ashpink text-ashpink-dark hover:bg-ashpink hover:text-white font-semibold rounded-xl sm:rounded-2xl transition-all active:scale-95">
         Закрыть
       </button>
+    </div>
+  </div>
+
+  <!-- PRIVACY POLICY MODAL -->
+  <div id="privacy-modal"
+    class="modal-bg fixed inset-0 z-[90] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+    <div
+      class="modal-content bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 max-w-2xl lg:max-w-4xl w-full max-h-[85vh] overflow-y-auto shadow-2xl mx-4">
+      <!-- Header -->
+      <div
+        class="flex items-center justify-between mb-4 sm:mb-6 sticky top-0 bg-white pb-3 border-b border-gray-100">
+        <h2 class="text-xl sm:text-2xl font-bold font-playfair text-dark">Политика конфиденциальности</h2>
+        <button onclick="closePrivacyModal()"
+          class="p-2 hover:bg-gray-100 rounded-xl transition-colors">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Content -->
+      <div class="prose prose-sm sm:prose-base max-w-none text-dark space-y-4">
+        <section>
+          <h3 class="text-base sm:text-lg lg:text-xl font-semibold mb-2">1. Общие положения</h3>
+          <p class="text-xs sm:text-sm lg:text-base leading-relaxed mb-2">
+            1.1. Настоящая Политика конфиденциальности (далее — Политика) определяет порядок обработки и защиты персональных данных пользователей сайта FINA MOLDS (далее — Сайт).
+          </p>
+          <p class="text-xs sm:text-sm lg:text-base leading-relaxed mb-2">
+            1.2. Оператором персональных данных является Индивидуальный предприниматель Перминов Илья Александрович (далее — Оператор), применяющий специальный налоговый режим «Налог на профессиональный доход».
+          </p>
+          <p class="text-xs sm:text-sm lg:text-base leading-relaxed">
+            1.3. Оставляя заявку на Сайте (нажимая кнопку отправки заказа) и проставляя соответствующую отметку (чекбокс), Пользователь дает свое однозначное согласие с условиями настоящей Политики.
+          </p>
+        </section>
+
+        <section>
+          <h3 class="text-base sm:text-lg lg:text-xl font-semibold mb-2">2. Правовые основания обработки персональных данных</h3>
+          <p class="text-xs sm:text-sm lg:text-base leading-relaxed mb-2">
+            Правовым основанием обработки персональных данных является:
+          </p>
+          <ul class="list-disc list-inside text-xs sm:text-sm lg:text-base space-y-1 ml-4">
+            <li>Федеральный закон РФ от 27.07.2006 № 152-ФЗ «О персональных данных»;</li>
+            <li>Согласие Пользователя на обработку персональных данных;</li>
+            <li>Договор публичной оферты, стороной которого является Пользователь.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3 class="text-base sm:text-lg lg:text-xl font-semibold mb-2">3. Собираемые данные</h3>
+          <p class="text-xs sm:text-sm lg:text-base leading-relaxed mb-2">
+            При оформлении заказа Оператор собирает минимально необходимые персональные данные Пользователя:
+          </p>
+          <ul class="list-disc list-inside text-xs sm:text-sm lg:text-base space-y-1 ml-4">
+            <li>ФИО (фамилия, имя, отчество);</li>
+            <li>Номер телефона;</li>
+            <li>Имя пользователя (никнейм) или контакт для связи в разрешенных на территории РФ мессенджерах и социальных сетях (Telegram, VK, WhatsApp и др.);</li>
+            <li>Город доставки и адрес пункта выдачи заказов СДЭК (или иной логистической службы).</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3 class="text-base sm:text-lg lg:text-xl font-semibold mb-2">4. Цели обработки данных</h3>
+          <p class="text-xs sm:text-sm lg:text-base leading-relaxed mb-2">
+            Персональные данные используются исключительно для следующих целей:
+          </p>
+          <ul class="list-disc list-inside text-xs sm:text-sm lg:text-base space-y-1 ml-4">
+            <li>Идентификация Пользователя, оформление и выполнение заказа;</li>
+            <li>Связь с Пользователем для подтверждения заказа, уточнения деталей, предоставления реквизитов для оплаты;</li>
+            <li>Передача данных логистической компании (ООО «СДЭК-Глобал» или аналогичной) исключительно в целях организации доставки товара;</li>
+            <li>Выдача электронного кассового чека (формируемого через приложение «Мой налог»);</li>
+            <li>Обработка возможных претензий или запросов на возврат.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3 class="text-base sm:text-lg lg:text-xl font-semibold mb-2">5. Порядок сбора, хранения и передачи данных</h3>
+          <p class="text-xs sm:text-sm lg:text-base leading-relaxed mb-2">
+            5.1. Оператор обеспечивает сохранность персональных данных и принимает все возможные технические и организационные меры для исключения доступа к ним неуполномоченных лиц.
+          </p>
+          <p class="text-xs sm:text-sm lg:text-base leading-relaxed mb-2">
+            5.2. Данные Пользователя не передаются третьим лицам, за исключением случаев, связанных с исполнением заказа (передача курьерской службе СДЭК) и требований законодательства РФ.
+          </p>
+          <p class="text-xs sm:text-sm lg:text-base leading-relaxed">
+            5.3. Базы данных информации, содержащей персональные данные граждан РФ, располагаются на территории Российской Федерации.
+          </p>
+        </section>
+
+        <section>
+          <h3 class="text-base sm:text-lg lg:text-xl font-semibold mb-2">6. Сроки хранения и уничтожение данных</h3>
+          <p class="text-xs sm:text-sm lg:text-base leading-relaxed mb-2">
+            6.1. Персональные данные хранятся в течение срока, необходимого для выполнения заказа, плюс 3 (три) года для разрешения возможных споров и соблюдения налогового законодательства.
+          </p>
+          <p class="text-xs sm:text-sm lg:text-base leading-relaxed">
+            6.2. В случае отзыва Пользователем согласия на обработку персональных данных, Оператор обязуется прекратить их обработку и уничтожить данные в срок, не превышающий 30 дней с даты поступления указанного отзыва.
+          </p>
+        </section>
+
+        <section>
+          <h3 class="text-base sm:text-lg lg:text-xl font-semibold mb-2">7. Права пользователей</h3>
+          <p class="text-xs sm:text-sm lg:text-base leading-relaxed mb-2">
+            Пользователь имеет право:
+          </p>
+          <ul class="list-disc list-inside text-xs sm:text-sm lg:text-base space-y-1 ml-4">
+            <li>Получать информацию, касающуюся обработки его персональных данных;</li>
+            <li>Требовать от Оператора уточнения, блокирования или уничтожения своих персональных данных в случае, если данные являются неполными, устаревшими, неточными или не являются необходимыми для заявленной цели;</li>
+            <li>В любой момент отозвать свое согласие на обработку, направив письменное или электронное уведомление Оператору.</li>
+          </ul>
+          <p class="text-xs sm:text-sm lg:text-base leading-relaxed mt-2">
+            Для реализации своих прав Пользователь может связаться с Оператором через Telegram, ВКонтакте или по электронной почте.
+          </p>
+        </section>
+
+        <section>
+          <h3 class="text-base sm:text-lg lg:text-xl font-semibold mb-2">8. Реквизиты оператора</h3>
+          <div class="text-xs sm:text-sm lg:text-base leading-relaxed space-y-1">
+            <p><strong>Наименование:</strong> ИП Перминов Илья Александрович</p>
+            <p><strong>ИНН:</strong> 545213045290</p>
+            <p><strong>ОГРНИП:</strong> 320547600063741</p>
+            <p><strong>Юридический адрес:</strong> Россия, Новосибирская область, г. Куйбышев, ул. Советская, д. 20, кв. 1</p>
+            <p><strong>Телефон:</strong> +7 983 317-72-63</p>
+            <p><strong>Email:</strong> fina.etsy@gmail.com</p>
+          </div>
+        </section>
+
+        <section class="pt-4 border-t border-gray-100">
+          <p class="text-xs sm:text-sm text-mid italic">
+            Дата вступления в силу: 17 апреля 2026 года
+          </p>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- PUBLIC OFFER MODAL -->
+  <div id="offer-modal"
+    class="modal-bg fixed inset-0 z-[90] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+    <div
+      class="modal-content bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 max-w-2xl lg:max-w-4xl w-full max-h-[85vh] overflow-y-auto shadow-2xl mx-4">
+      <!-- Header -->
+      <div
+        class="flex items-center justify-between mb-4 sm:mb-6 sticky top-0 bg-white pb-3 border-b border-gray-100">
+        <h2 class="text-xl sm:text-2xl font-bold font-playfair text-dark">Публичная оферта</h2>
+        <button onclick="closeOfferModal()"
+          class="p-2 hover:bg-gray-100 rounded-xl transition-colors">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Content -->
+      <div class="prose prose-sm sm:prose-base max-w-none text-dark space-y-4">
+        <section>
+          <h3 class="text-base sm:text-lg lg:text-xl font-semibold mb-2">1. Общие положения</h3>
+          <p class="text-xs sm:text-sm lg:text-base leading-relaxed mb-2">
+            1.1. Настоящий документ является официальным предложением (публичной офертой) Индивидуального предпринимателя Перминова Ильи Александровича, применяющего режим «Налог на профессиональный доход» (далее — Продавец), заключить договор купли-продажи товаров (силиконовых молдов) дистанционным способом с любым дееспособным физическим лицом (далее — Покупатель).
+          </p>
+          <p class="text-xs sm:text-sm lg:text-base leading-relaxed">
+            1.2. Оформление заказа на сайте FINA MOLDS и последующая оплата товара является полным и безоговорочным акцептом (принятием) условий настоящей оферты (ст. 438 ГК РФ).
+          </p>
+        </section>
+
+        <section>
+          <h3 class="text-base sm:text-lg lg:text-xl font-semibold mb-2">2. Предмет договора и порядок оформления заказа</h3>
+          <p class="text-xs sm:text-sm lg:text-base leading-relaxed mb-2">
+            2.1. Продавец обязуется передать в собственность Покупателя товар (силиконовые молды ручной работы), а Покупатель обязуется оплатить и принять товар.
+          </p>
+          <p class="text-xs sm:text-sm lg:text-base leading-relaxed mb-2">
+            2.2. Покупатель выбирает товар в каталоге на сайте и оставляет заявку с контактными данными.
+          </p>
+          <p class="text-xs sm:text-sm lg:text-base leading-relaxed mb-2">
+            2.3. Продавец связывается с Покупателем в мессенджере (Telegram, WhatsApp, VK) для подтверждения наличия, согласования сроков изготовления (если применимо), стоимости доставки и деталей оплаты.
+          </p>
+          <p class="text-xs sm:text-sm lg:text-base leading-relaxed">
+            2.4. Договор считается заключенным с момента выдачи Продавцом Покупателю электронного чека, подтверждающего оплату товара.
+          </p>
+        </section>
+
+        <section>
+          <h3 class="text-base sm:text-lg lg:text-xl font-semibold mb-2">3. Оплата товара</h3>
+          <p class="text-xs sm:text-sm lg:text-base leading-relaxed mb-2">
+            3.1. Оплата производится на основании договоренности сторон после подтверждения заказа Продавцом.
+          </p>
+          <p class="text-xs sm:text-sm lg:text-base leading-relaxed mb-2">
+            3.2. Так как Продавец применяет специальный налоговый режим НПД (самозанятость), оплата осуществляется путем перевода денежных средств по реквизитам Продавца (перевод на банковскую карту, СБП).
+          </p>
+          <p class="text-xs sm:text-sm lg:text-base leading-relaxed">
+            3.3. После получения оплаты Продавец обязуется сформировать электронный чек в приложении «Мой налог» и направить его Покупателю в электронном виде (ссылкой или изображением) в мессенджер.
+          </p>
+        </section>
+
+        <section>
+          <h3 class="text-base sm:text-lg lg:text-xl font-semibold mb-2">4. Доставка товара</h3>
+          <p class="text-xs sm:text-sm lg:text-base leading-relaxed mb-2">
+            4.1. Доставка осуществляется транспортной компанией СДЭК до выбранного Покупателем пункта выдачи заказов (ПВЗ).
+          </p>
+          <p class="text-xs sm:text-sm lg:text-base leading-relaxed mb-2">
+            4.2. Стоимость доставки рассчитывается по тарифам ТК СДЭК и оплачивается Покупателем. По договоренности сторон стоимость доставки может быть включена в общий счет либо оплачиваться Покупателем при получении.
+          </p>
+          <p class="text-xs sm:text-sm lg:text-base leading-relaxed mb-2">
+            4.3. Срок передачи товара в службу доставки: от 1 до 5 рабочих дней после оплаты (или иной срок, если товар изготавливается на заказ, что согласовывается отдельно).
+          </p>
+          <p class="text-xs sm:text-sm lg:text-base leading-relaxed">
+            4.4. Риск случайной гибели или повреждения товара переходит к Покупателю с момента передачи товара Продавцом в службу доставки. При получении товара в ПВЗ Покупатель обязан проверить целостность упаковки и самого товара.
+          </p>
+        </section>
+
+        <section>
+          <h3 class="text-base sm:text-lg lg:text-xl font-semibold mb-2">5. Возврат товара</h3>
+          <p class="text-xs sm:text-sm lg:text-base leading-relaxed mb-2">
+            5.1. В соответствии со ст. 26.1 Закона РФ «О защите прав потребителей» (Дистанционный способ продажи товара), Покупатель вправе отказаться от товара надлежащего качества в любое время до его передачи, а после передачи товара — в течение 7 (семи) дней.
+          </p>
+          <p class="text-xs sm:text-sm lg:text-base leading-relaxed mb-2">
+            5.2. Возврат товара надлежащего качества возможен в случае, если сохранены его товарный вид, потребительские свойства (товар не был в употреблении, не контактировал со смолой/гипсом), а также документ, подтверждающий факт и условия покупки указанного товара (электронный чек).
+          </p>
+          <p class="text-xs sm:text-sm lg:text-base leading-relaxed mb-2">
+            5.3. При отказе Покупателя от товара Продавец возвращает ему денежную сумму, уплаченную по договору, за исключением расходов Продавца на доставку от Покупателя возвращенного товара, не позднее чем через 10 дней со дня предъявления соответствующего требования и получения возвращенного товара.
+          </p>
+          <p class="text-xs sm:text-sm lg:text-base leading-relaxed mb-2">
+            5.4. Исключение: Если силиконовый молд изготовлен по индивидуальному заказу (мастер-модель Покупателя, индивидуальные размеры), Покупатель не вправе отказаться от товара надлежащего качества, имеющего индивидуально-определенные свойства (согласно абз. 4 п. 4 ст. 26.1 ЗоЗПП).
+          </p>
+          <p class="text-xs sm:text-sm lg:text-base leading-relaxed">
+            5.5. При обнаружении производственного брака Покупатель имеет право на замену товара или возврат средств. Незначительные отклонения в размерах (±1-2 мм) и наличие не влияющих на рабочую поверхность микропузырьков снаружи формы браком не считаются, так как являются особенностью ручного литья.
+          </p>
+        </section>
+
+        <section>
+          <h3 class="text-base sm:text-lg lg:text-xl font-semibold mb-2">6. Реквизиты продавца</h3>
+          <div class="text-xs sm:text-sm lg:text-base leading-relaxed space-y-1">
+            <p><strong>Наименование:</strong> ИП Перминов Илья Александрович</p>
+            <p><strong>Налоговый режим:</strong> Налог на профессиональный доход (НПД)</p>
+            <p><strong>ИНН:</strong> 545213045290</p>
+            <p><strong>ОГРНИП:</strong> 320547600063741</p>
+            <p><strong>Юридический адрес:</strong> Россия, Новосибирская область, г. Куйбышев, ул. Советская, д. 20, кв. 1</p>
+            <p><strong>Телефон:</strong> +7 983 317-72-63</p>
+            <p><strong>Email:</strong> fina.etsy@gmail.com</p>
+          </div>
+        </section>
+
+        <section class="pt-4 border-t border-gray-100">
+          <p class="text-xs sm:text-sm text-mid italic">
+            Дата вступления в силу: 17 апреля 2026 года
+          </p>
+        </section>
+      </div>
     </div>
   </div>
 
@@ -722,16 +1013,16 @@
       { name: "Молд №157 — Вытянутые кристаллы M (серьги 17×20 мм, подвеска 20×43 мм)", priceRub: 350, priceUsd: 6, image: "https://i.etsystatic.com/38970874/r/il/a0a177/5131716200/il_fullxfull.5131716200_q063.jpg" },
       { name: "Молд №160 — Кулон (55×35 мм)", priceRub: 450, priceUsd: 8, image: "https://i.etsystatic.com/38970874/r/il/497fef/5177919425/il_fullxfull.5177919425_dvu5.jpg" },
       { name: "Молд №161 — Элегантный кулон (60×40 мм)", priceRub: 450, priceUsd: 8, image: "https://i.etsystatic.com/38970874/r/il/a85aba/5179934253/il_fullxfull.5179934253_1r22.jpg" },
-      { name: "Шарики 12 мм (4 шт)", priceRub: 550, priceUsd: 10, image: "https://i.etsystatic.com/38970874/r/il/88a3e0/5314857153/il_fullxfull.5314857153_39vx.jpg" },
-      { name: "Шарики 14 мм (4 шт)", priceRub: 550, priceUsd: 10, image: "https://i.etsystatic.com/38970874/r/il/82b7d3/5266671002/il_fullxfull.5266671002_1bx6.jpg" },
-      { name: "Шарики 16 мм (4 шт)", priceRub: 600, priceUsd: 12, image: "https://i.etsystatic.com/38970874/r/il/a1b456/5266671278/il_fullxfull.5266671278_oay5.jpg" },
-      { name: "Шарики 18 мм (4 шт)", priceRub: 650, priceUsd: 13, image: "https://i.etsystatic.com/38970874/r/il/614c7d/5266671530/il_fullxfull.5266671530_si4z.jpg" },
+      { name: "Шарики 12 мм (4 шт)", priceRub: 550, priceUsd: 10, image: "https://i.etsystatic.com/38970874/r/il/812a6a/5314860557/il_fullxfull.5314860557_35w4.jpg" },
+      { name: "Шарики 14 мм (4 шт)", priceRub: 550, priceUsd: 10, image: "https://i.etsystatic.com/38970874/r/il/812a6a/5314860557/il_fullxfull.5314860557_35w4.jpg" },
+      { name: "Шарики 16 мм (4 шт)", priceRub: 600, priceUsd: 12, image: "https://i.etsystatic.com/38970874/r/il/812a6a/5314860557/il_fullxfull.5314860557_35w4.jpg" },
+      { name: "Шарики 18 мм (4 шт)", priceRub: 650, priceUsd: 13, image: "https://i.etsystatic.com/38970874/r/il/812a6a/5314860557/il_fullxfull.5314860557_35w4.jpg" },
       { name: "Шарики 20 мм (4 шт)", priceRub: 700, priceUsd: 14, image: "https://i.etsystatic.com/38970874/r/il/812a6a/5314860557/il_fullxfull.5314860557_35w4.jpg" },
-      { name: "Шарики 25 мм (2 шт)", priceRub: 700, priceUsd: 14, image: "https://i.etsystatic.com/38970874/r/il/1870af/5314859163/il_fullxfull.5314859163_j0lx.jpg" },
-      { name: "Шарики 28 мм (2 шт)", priceRub: 750, priceUsd: 15, image: "https://i.etsystatic.com/38970874/r/il/b728f7/5314859539/il_fullxfull.5314859539_krf2.jpg" },
+      { name: "Шарики 25 мм (2 шт)", priceRub: 700, priceUsd: 14, image: "https://i.etsystatic.com/38970874/r/il/812a6a/5314860557/il_fullxfull.5314860557_35w4.jpg" },
+      { name: "Шарики 28 мм (2 шт)", priceRub: 750, priceUsd: 15, image: "https://i.etsystatic.com/38970874/r/il/812a6a/5314860557/il_fullxfull.5314860557_35w4.jpg" },
       { name: "Кубики 15 мм (4 шт)", priceRub: 650, priceUsd: 13, image: "https://i.etsystatic.com/38970874/r/il/84070f/5266733314/il_fullxfull.5266733314_jawe.jpg" },
-      { name: "Кубики 19 мм (2 шт)", priceRub: 600, priceUsd: 12, image: "https://i.etsystatic.com/38970874/r/il/50b098/5314918351/il_fullxfull.5314918351_qk5c.jpg" },
-      { name: "Кубики 25 мм (2 шт)", priceRub: 700, priceUsd: 14, image: "https://i.etsystatic.com/38970874/r/il/4f9719/5314919647/il_fullxfull.5314919647_3pd4.jpg" }
+      { name: "Кубики 19 мм (2 шт)", priceRub: 600, priceUsd: 12, image: "https://i.etsystatic.com/38970874/r/il/84070f/5266733314/il_fullxfull.5266733314_jawe.jpg" },
+      { name: "Кубики 25 мм (2 шт)", priceRub: 700, priceUsd: 14, image: "https://i.etsystatic.com/38970874/r/il/84070f/5266733314/il_fullxfull.5266733314_jawe.jpg" }
     ];
     // ============ STATE & CATEGORIES ============
     let cart = JSON.parse(localStorage.getItem('fina_cart')) || [];
@@ -990,8 +1281,14 @@
     // ============ TOAST ============
     function showToast() {
       const toast = document.getElementById('toast');
+      if (!toast) {
+        console.error('Toast element not found');
+        return;
+      }
       toast.classList.add('show');
-      setTimeout(() => toast.classList.remove('show'), 2000);
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2000);
     }
 
     // ============ SUCCESS MODAL ============
@@ -1021,8 +1318,100 @@
       document.getElementById('success-modal').classList.add('active');
     }
 
+    // ============ PRIVACY MODAL ============
+    function openPrivacyModal() {
+      const modal = document.getElementById('privacy-modal');
+      if (!modal) {
+        console.error('Privacy modal element not found');
+        return;
+      }
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closePrivacyModal() {
+      const modal = document.getElementById('privacy-modal');
+      if (!modal) {
+        console.error('Privacy modal element not found');
+        return;
+      }
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    // ============ OFFER MODAL ============
+    function openOfferModal() {
+      const modal = document.getElementById('offer-modal');
+      if (!modal) {
+        console.error('Offer modal element not found');
+        return;
+      }
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeOfferModal() {
+      const modal = document.getElementById('offer-modal');
+      if (!modal) {
+        console.error('Offer modal element not found');
+        return;
+      }
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    // ============ GLOBAL EVENT HANDLERS ============
+    // ESC key closes modals
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        const privacyModal = document.getElementById('privacy-modal');
+        const offerModal = document.getElementById('offer-modal');
+        
+        if (privacyModal && privacyModal.classList.contains('active')) {
+          closePrivacyModal();
+        } else if (offerModal && offerModal.classList.contains('active')) {
+          closeOfferModal();
+        }
+      }
+    });
+
+    // Click outside modal closes it
+    document.addEventListener('DOMContentLoaded', () => {
+      const privacyModal = document.getElementById('privacy-modal');
+      const offerModal = document.getElementById('offer-modal');
+
+      if (privacyModal) {
+        privacyModal.addEventListener('click', (e) => {
+          if (e.target === privacyModal) {
+            closePrivacyModal();
+          }
+        });
+      }
+
+      if (offerModal) {
+        offerModal.addEventListener('click', (e) => {
+          if (e.target === offerModal) {
+            closeOfferModal();
+          }
+        });
+      }
+    });
+
+    // ============ GET CLIENT IP ============
+    async function getClientIP() {
+      try {
+        // Попытка получить IP через публичный API
+        const response = await fetch('https://api.ipify.org?format=json', { timeout: 1000 });
+        const data = await response.json();
+        return data.ip || 'N/A';
+      } catch (error) {
+        // Fallback на N/A если не удалось получить IP
+        return 'N/A';
+      }
+    }
+
     // ============ SUBMIT ORDER ============
-    function submitOrder(e) {
+    async function submitOrder(e) {
       e.preventDefault();
 
       const form = document.getElementById('order-form');
@@ -1068,6 +1457,12 @@
       formData.append('utm_medium', urlParams.get('utm_medium') || '');
       formData.append('utm_campaign', urlParams.get('utm_campaign') || '');
       formData.append('client_time', new Date().toLocaleString('ru-RU'));
+
+      // Добавляем данные согласия
+      formData.append('consent', 'true');
+      formData.append('consent_timestamp', new Date().toISOString());
+      const ipAddress = await getClientIP();
+      formData.append('consent_ip', ipAddress);
 
       const urlEncodedData = new URLSearchParams();
       for (const pair of formData.entries()) {
